@@ -7,6 +7,7 @@ import configurePassport from './routes/passportConfig.js';
 import  webhookRoutes  from './routes/webhookRoutes.js';  
 import registerFacebookWebhook  from './routes/registerFacebookWebhook.js';
 import User from './models/User.js';
+import Conversation from './models/Conversation.js';
 import cors from "cors"
 
 
@@ -56,16 +57,71 @@ app.get('/test-webhook-registration', async (req, res) => {
 });
 
 
-// Set up other middleware, routes, etc.
+
+const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
+
+app.post('/send-message', async (req, res) => {
+    const { senderPsid, messageText, conversationId } = req.body;
+
+    try {
+        // Send message to the user via Facebook Messenger
+        const response = await axios.post(`https://graph.facebook.com/v2.6/me/messages?access_token=${PAGE_ACCESS_TOKEN}`, {
+            recipient: { id: senderPsid },
+            message: { text: messageText },
+            messaging_type: 'RESPONSE',
+            tag: 'CONFIRMED_EVENT_UPDATE'
+        });
+
+        console.log('Message sent:', response.data);
+
+        // Log the message in the conversation
+        const now = new Date();
+        const conversation = await Conversation.findById(conversationId);
+
+        if (!conversation) {
+            return res.status(404).json({ error: 'Conversation not found.' });
+        }
+
+        conversation.messages.push({
+            text: messageText,
+            sentAt: now,
+            outgoing: true // Optional: Mark the message as outgoing
+        });
+
+        await conversation.save();
+
+        res.json({ message: 'Message sent and logged successfully.' });
+    } catch (error) {
+        console.error('Failed to send or log message:', error);
+        res.status(500).json({ error: 'Failed to send or log message' });
+    }
+});
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, async () => {
     console.log(`Server running on port ${PORT}`);
-    // Register webhooks for each page after the server starts
-    // const users = await User.find({}); // Get all users
-    // users.forEach(user => {
-    //     user.pageAccessTokens.forEach(page => {
-    //         registerFacebookWebhook(page.pageId, page.accessToken);
-    //     });
-    // });
 });
+
+
+
+// require('dotenv').config({path: './env'})
+import dotenv from "dotenv"
+import connectDB from "./db/index.js";
+import { app } from './app.js'
+dotenv.config({
+    path: './.env'
+})
+
+
+
+connectDB()
+    .then(() => {
+        app.listen(process.env.PORT || 8000, () => {
+            console.log(`⚙️ Server is running at port : ${process.env.PORT}`);
+        })
+    })
+    .catch((err) => {
+        console.log("MONGO db connection failed !!! ", err);
+    })
+

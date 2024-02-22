@@ -18,7 +18,7 @@ const processWebhookEvent = async (webhook_event) => {
 
         // Check if a new conversation should be started
         if (!conversation || now - conversation.lastMessageAt > 24 * 60 * 60 * 1000) {
-            // Start a new conversation
+            // Start a new conversation - yaha pe new initialize hua h
             conversation = new Conversation({
                 pageId: process.env.PAGE_ID,
                 customerId: sender_psid,
@@ -27,7 +27,7 @@ const processWebhookEvent = async (webhook_event) => {
             });
         }
 
-        // Add message to the conversation (new or existing)
+        // Add message to the conversation (new or existing) -- ye db me add krega
         conversation.messages.push({
             messageId: message.mid,
             text: message.text,
@@ -37,43 +37,40 @@ const processWebhookEvent = async (webhook_event) => {
         conversation.lastMessageAt = now;
         await conversation.save();
 
-        // Respond to the message
-        handleMessage(sender_psid, message, conversation._id);
+       
     } catch (error) {
         console.error('Failed to process webhook event:', error);
     }
 };
 
-const handleMessage = async (senderPsid, receivedMessage, conversationId) => {
-    try {
-        // Logic to save the message to the conversation in the database
-        const conversation = await Conversation.findById(conversationId);
-        if (!conversation) {
-            throw new Error(`Conversation with ID ${conversationId} not found.`);
-        }
+// const handleMessage = async (senderPsid, receivedMessage, conversationId) => {
+//     try {
+//         // Logic to save the message to the conversation in the database -- frontend to user
+//         const now = new Date();
+//         const conversation = await Conversation.findById(conversationId);
+//         if (!conversation) {
+//             throw new Error(`Conversation with ID ${conversationId} not found.`);
+//         }
 
-        // Add the received message to the conversation's messages array
-        conversation.messages.push({
-            messageId: receivedMessage.mid,
-            text: receivedMessage.text,
-            attachments: receivedMessage.attachments,
-            sentAt: new Date() // Use the received timestamp if available
-        });
+//         conversation.messages.push({
+//             messageId: receivedMessage.mid,
+//             text: receivedMessage.text,
+//             //attachments: receivedMessage.attachments,
+//             sentAt: now
+//         });
 
-        // Save the updated conversation
-        await conversation.save();
+//         await conversation.save();
 
-        // Construct a response message
-        const response = {
-            text: `You sent the message: "${receivedMessage.text}". Now send me an image!`
-        };
+//         const response = {
+//             text: `You sent the message: "${receivedMessage.text}"!`
+//         };
 
-        // Send a response message via the Send API
-        await callSendAPI(senderPsid, response);
-    } catch (error) {
-        console.error('Failed to handle message:', error);
-    }
-};
+//         // Send a response message via the Send API
+//         await callSendAPI(senderPsid, response);
+//     } catch (error) {
+//         console.error('Failed to handle message:', error);
+//     }
+// };
 
 const handlePostback = (senderPsid, receivedPostback) => {
     let response;
@@ -95,4 +92,4 @@ const handlePostback = (senderPsid, receivedPostback) => {
     callSendAPI(senderPsid, response);
 };
 
-export { processWebhookEvent, handleMessage, handlePostback };
+export { processWebhookEvent, handlePostback };
