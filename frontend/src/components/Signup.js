@@ -5,7 +5,7 @@ const Signup = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [rememberMe, setRememberMe] = useState('');
+    const [rememberMe, setRememberMe] = useState(false);
     const [error, setError] = useState('');
 
     const handleSubmit = async (e) => {
@@ -30,29 +30,72 @@ const Signup = () => {
     };
 
     return (
-        <div className="login-form">
-            <h2>Create Account</h2>
-            <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <label htmlFor="name">Name</label>
-                    <input type="name" id="name" value={name} onChange={(e) => setName(e.target.value)} />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="email">Email:</label>
-                    <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="password">Password:</label>
-                    <input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-                </div>
-                <div className="form-group">
-                    
-                    <input type="checkbox" id="rememberMe" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} />
-                    <label htmlFor="rememberMe">Remember Me:</label>
-                </div>
-                <button type="submit">Sign Up</button>
-                {error && <div className="error-message">{error}</div>}
-            </form>
+        <div className="flex justify-center items-center h-screen bg-blue-100">
+            <div className="bg-white p-8 rounded-lg shadow-md w-96">
+                <h2 className="text-2xl font-bold mb-2 text-gray-800">Create Account</h2>
+                <form onSubmit={handleSubmit}>
+                    <div className="mb-4">
+                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
+                            Name
+                        </label>
+                        <input
+                            type="text"
+                            id="name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+                            Email
+                        </label>
+                        <input
+                            type="email"
+                            id="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        />
+                    </div>
+                    <div className="mb-6">
+                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+                            Password
+                        </label>
+                        <input
+                            type="password"
+                            id="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                        />
+                    </div>
+                    <div className="mb-6">
+                        <input
+                            type="checkbox"
+                            id="rememberMe"
+                            checked={rememberMe}
+                            onChange={(e) => setRememberMe(e.target.checked)}
+                            className="leading-tight"
+                        />
+                        <label className="inline-block text-gray-700 text-sm font-bold ml-2" htmlFor="rememberMe">
+                            Remember Me
+                        </label>
+                    </div>
+                    <button
+                        type="submit"
+                        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                        Sign Up
+                    </button>
+                    <div className="text-center">
+                        <a href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+                            Already have an account? Login
+                        </a>
+                    </div>
+                    {error && <div className="text-red-500 text-center mt-2">{error}</div>}
+                </form>
+            </div>
         </div>
     );
 };

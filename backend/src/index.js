@@ -46,7 +46,7 @@ app.get('/test-webhook-registration', async (req, res) => {
     try {
         // Assuming you have a specific Page ID and Access Token for testing
         const testPageId = '189617477577877';
-        const testPageAccessToken = 'EAAO89S9DSHkBOyplZAtZCrp5dZBFxE6xZACHhZCCES0ZAuyIzXgyZAZC5S9y2IzcZBZA2shCZBYZCH3Pmdc2yjIBEgVuMqRINQX5O8NJtxxrI550RlKjUwYJu4PtAhXRunjKB2fUHavY0TEIirpiVRnLXqT5fHx8sRxtkDf1LEUvo8xOAjAe8ZAUJgqrhFoXKr02pTGAQNiRYLFPQpitnzFfFMZB4Kf98ZD';
+        const testPageAccessToken = 'EAAO89S9DSHkBO1FTW1hIoG23HdiCUeZCLy9y8IhZATm8Rvq59mZCbc5owHB9EDUK3FS8plmOzGfBKQxSOXNGzOALVJok41JNRBsa2nQ2oDzEux4w7BYTOAIK1ADOuAbYvT74mqzwToDOhA8IcPljwBzsqFZCZCq9pcmSgWN6Fo3HalnJuY4ruosD2oy1pQlYcVOT0qNMb3MmjvcLs88HdtBMZD';
 
         await registerFacebookWebhook(testPageId, testPageAccessToken);
         res.send('Webhook registration initiated. Check server logs for outcome.');
@@ -65,7 +65,7 @@ app.post('/send-message', async (req, res) => {
 
     try {
         // Send message to the user via Facebook Messenger
-        const response = await axios.post(`https://graph.facebook.com/v2.6/me/messages?access_token=${PAGE_ACCESS_TOKEN}`, {
+        const response = await axios.post(`https://graph.facebook.com/v19.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`, {
             recipient: { id: senderPsid },
             message: { text: messageText },
             messaging_type: 'RESPONSE',

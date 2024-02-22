@@ -7,11 +7,11 @@ import ChatPage from './components/messaging/ChatPage';
 function App() {
   return (
    <div>
-    {/* <Login/>
+    <Login/>
      
-    <Signup/> */}
+    {/* <Signup/> */}
     {/* <FacebookPageManagement/> */}
-    <ChatPage/>
+    {/* <ChatPage/> */}
    </div>
   );
 }

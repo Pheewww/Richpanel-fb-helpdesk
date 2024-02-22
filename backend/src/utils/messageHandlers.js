@@ -9,6 +9,7 @@ const processWebhookEvent = async (webhook_event) => {
 
     try {
         // Find the most recent conversation in the database
+        console.log('Looking the convo in the database');
         let conversation = await Conversation.findOne({
             customerId: sender_psid
         }).sort({ lastMessageAt: -1 });
@@ -24,7 +25,9 @@ const processWebhookEvent = async (webhook_event) => {
                 lastMessageAt: now,
                 messages: []
             });
+            console.log('this conv is new and got added in database');
         }
+        
 
         // Add message to the conversation (new or existing) -- ye db me add krega
         conversation.messages.push({
@@ -35,6 +38,8 @@ const processWebhookEvent = async (webhook_event) => {
         });
         conversation.lastMessageAt = now;
         await conversation.save();
+
+        console.log('added in the database - BY WebhookProcessEvent');
 
        
     } catch (error) {
