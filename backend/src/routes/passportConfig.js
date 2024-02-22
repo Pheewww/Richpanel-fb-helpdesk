@@ -7,8 +7,8 @@ const configurePassport = (passport) => {
     passport.use(new FacebookStrategy({
         clientID: process.env.FACEBOOK_CLIENT_ID,
         clientSecret: process.env.CLIENT_SECRET,
-        callbackURL: encodeURIComponent(process.env.FACEBOOK_CALLBACK_URL),
-        profileFields: ['id', 'displayName', 'emails'], 
+        callbackURL: process.env.FACEBOOK_CALLBACK_URL,
+        profileFields: ['id','displayName','emails'], 
     }, async (accessToken, _refreshToken, profile, done) => {
         try {
             let user = await User.findOne({ facebookId: profile.id });
