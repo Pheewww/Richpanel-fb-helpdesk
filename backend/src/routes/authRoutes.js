@@ -6,7 +6,7 @@ import User from '../models/User.js';
 const router = express.Router();
 
 router.get('/auth/facebook',
-    passport.authenticate('facebook', { scope: ['email', 'manage_pages', 'pages_messaging'] })
+    passport.authenticate('facebook', { scope: ['email','manage_pages','pages_messaging'] })
 );
 
 router.get('/auth/facebook/callback',
