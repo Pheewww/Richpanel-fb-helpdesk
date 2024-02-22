@@ -9,14 +9,15 @@ const webhookRoutes = express.Router();
 webhookRoutes.use(bodyParser.json());
 
 webhookRoutes.get('/webhook', (req, res) => {
-    const VERIFY_TOKEN = process.env.WEBHOOK_VERIFY_TOKEN;
+    const VERIFY_TOKEN = "happy";
+    console.log("going");
     const mode = req.query['hub.mode'];
     const token = req.query['hub.verify_token'];
     const challenge = req.query['hub.challenge'];
-
+    console.log("going1");
     if (mode && token) {
         if (mode === 'subscribe' && token === VERIFY_TOKEN) {
-            console.log('WEBHOOK_VERIFIED');
+            console.log('WEBHOOK_VERIFIED111');
             res.status(200).send(challenge);
         } else {
             res.sendStatus(403);
@@ -25,17 +26,39 @@ webhookRoutes.get('/webhook', (req, res) => {
 });
 
 webhookRoutes.post('/webhook', (req, res) => {
+    const VERIFY_TOKEN = "happy";
+    const mode = req.query['hub.mode'];
+    const token = req.query['hub.verify_token'];
+    const challenge = req.query['hub.challenge'];
+    if (mode && token) {
+        if (mode === 'subscribe' && token === VERIFY_TOKEN) {
+            console.log('WEBHOOK_VERIFIED111');
+            res.status(200).send(challenge);
+        } else {
+            res.sendStatus(403);
+        }
+    }
+});
+
+webhookRoutes.post('/webhook-event', (req, res) => {
     const body = req.body;
 
     if (body.object === 'page') {
         body.entry.forEach((entry) => {
             const webhook_event = entry.messaging[0];
-            console.log(webhook_event);
+            console.log(JSON.stringify(webhook_event, null, 2));
 
-            if (webhook_event.message) {
+            // // Get the sender PSID
+            // let sender_psid = webhook_event.sender.id;
+            // console.log('Sender PSID: ' + sender_psid);
+
+
+            if (webhook_event.message && webhook_event.sender && webhook_event.sender.id) {
                 handleMessage(webhook_event.sender.id, webhook_event.message);
-            } else if (webhook_event.postback) {
+            } else if (webhook_event.postback && webhook_event.sender && webhook_event.sender.id) {
                 handlePostback(webhook_event.sender.id, webhook_event.postback);
+            } else {
+                console.log('Sender ID not found or event type not handled', webhook_event);
             }
         });
 
