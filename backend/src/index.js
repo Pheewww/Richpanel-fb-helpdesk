@@ -18,9 +18,8 @@ app.use(cors({
 }))
 
 
-configurePassport(passport); 
 
-mongoose.connect('mongodb+srv://umang:qWqvWBN5XkwXgGBd@cluster01.2gtklha.mongodb.net/', {
+mongoose.connect('process.env.MONGODB_URI', {
     // useNewUrlParser: true,
     // useUnifiedTopology: true
 })
@@ -28,10 +27,13 @@ mongoose.connect('mongodb+srv://umang:qWqvWBN5XkwXgGBd@cluster01.2gtklha.mongodb
     .catch(err => console.error(err));
 
 app.use(session({
-    secret: 'hhhhpppp',
+    secret: 'process.env.EXPRESS_SESSION_SECRET',
     resave: true,
     saveUninitialized: true
 }));
+
+configurePassport(passport); 
+
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -45,10 +47,10 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, async () => {
     console.log(`Server running on port ${PORT}`);
     // Register webhooks for each page after the server starts
-    const users = await User.find({}); // Get all users
-    users.forEach(user => {
-        user.pageAccessTokens.forEach(page => {
-            registerFacebookWebhook(page.pageId, page.accessToken);
-        });
-    });
+    // const users = await User.find({}); // Get all users
+    // users.forEach(user => {
+    //     user.pageAccessTokens.forEach(page => {
+    //         registerFacebookWebhook(page.pageId, page.accessToken);
+    //     });
+    // });
 });
