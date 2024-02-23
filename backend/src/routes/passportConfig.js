@@ -11,21 +11,29 @@ const configurePassport = (passport) => {
         profileFields: ['id','displayName','emails'], 
     }, async (accessToken, _refreshToken, profile, done) => {
         try {
+
+            console.log('going for new user search');
             let user = await User.findOne({ facebookId: profile.id });
             if (!user) {
                 // new user in db without Access Tokens initially
                 user = await User.create({
                     facebookId: profile.id,
                     displayName: profile.displayName,
+
                 });
+                console.log('new user created');
+
             }
 
-            // Fetch access tokens
+
+            console.log('Fetch access tokens');
+            
             const pagesData = await fetch(`https://graph.facebook.com/${profile.id}/accounts?access_token=${accessToken}`)
                 .then(res => res.json())
                 .catch(err => { throw new Error(err) });
 
-            // Update 
+            console.log('Update ');
+            // 
             user.pageAccessTokens = pagesData.data.map(page => ({
                 pageId: page.id,
                 accessToken: page.access_token,
@@ -41,7 +49,13 @@ const configurePassport = (passport) => {
 
             await user.save();
 
+            console.log('user', user);
+            console.log('profile', profile);
+
             done(null, user);
+            done(null, profile);
+            console.log('Done user/profile');
+
         } catch (error) {
             done(error, null);
         }
