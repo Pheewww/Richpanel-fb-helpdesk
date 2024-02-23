@@ -13,35 +13,34 @@ const configurePassport = (passport) => {
         try {
 
             console.log('going for new user search');
-            // let user = await User.findOne({ facebookId: profile.id });
-            // if (!user) {
-            //     // new user in db without Access Tokens initially
-            //     user = await User.create({
-            //         facebookId: profile.id,
-            //         displayName: profile.displayName,
-
-            //     });
-            //     console.log('new user created');
-
-            // }
-
-            const emailId = profile.emails[0].value;
-            let user = await User.findOne({ email: emailId });
+            let user = await User.findOne({ facebookId: profile.id });
             if (!user) {
                 // new user in db without Access Tokens initially
-                console.log('USER NOT FOUND');
-                return res.status(404).send("USER EMAIL NOT FOUND");
-
-
-            } else {
                 user = await User.create({
                     facebookId: profile.id,
                     displayName: profile.displayName,
 
                 });
                 console.log('new user created');
+
             }
 
+            // const emailId = profile.emails[0].value;
+            // let user = await User.findOne({ email: emailId });
+            // if (!user) {
+            //     // new user in db without Access Tokens initially
+            //     console.log('USER NOT FOUND');
+            //     return res.status(404).send("USER EMAIL NOT FOUND");
+
+
+            // } else {
+            //     user = await User.create({
+            //         facebookId: profile.id,
+            //         displayName: profile.displayName,
+
+            //     });
+            //     console.log('new user created');
+            // }
 
             
 
@@ -86,7 +85,7 @@ const configurePassport = (passport) => {
             console.log('profile', profile);
 
             
-            done(null, user);
+            //done(null, user);
             console.log('Done user/profile');
 
         } catch (error) {

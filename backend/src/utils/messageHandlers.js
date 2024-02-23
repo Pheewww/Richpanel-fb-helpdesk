@@ -25,16 +25,18 @@ const processWebhookEvent = async (webhook_event) => {
                 messages: []
             });
             console.log('this conv is new and got added in database');
+        }else{
+            // Add message to the conversation (new or existing) -- ye db me add krega
+            conversation.messages.push({
+                messageId: message.mid,
+                text: message.text,
+                attachments: message.attachments,
+                sentAt: now
+            });
         }
         
 
-        // Add message to the conversation (new or existing) -- ye db me add krega
-        conversation.messages.push({
-            messageId: message.mid,
-            text: message.text,
-            attachments: message.attachments,
-            sentAt: now
-        });
+        
         conversation.lastMessageAt = now;
         await conversation.save();
 
