@@ -108,12 +108,17 @@ app.post('/send-message', async (req, res) => {
 });
 
 
-app.get('/api/conversations', async (req, res) => {
+app.get('/conversations', async (req, res) => {
     try {
         console.log('Working on collecting message for frontend');
-        const userId = req.user._id;
-        const conversations = await Conversation.find({ customerId: userId });
+        const userId = req.session.userId;
+        console.log('userID ');
+
+        const user = await User.findById(userId);
+
+        const conversations = await Conversation.find({ customerId: user.facebookId });
         res.json(conversations);
+        console.log('Found convo');
     } catch (error) {
         console.error('Error fetching conversations:', error);
         res.status(500).json({ message: 'An error occurred while fetching conversations' });
