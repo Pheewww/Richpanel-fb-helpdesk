@@ -6,7 +6,7 @@ import authRoutes from './routes/authRoutes.js';
 import configurePassport from './routes/passportConfig.js';
 import webhookRoutes from './routes/webhookRoutes.js';
 import registerFacebookWebhook from './routes/registerFacebookWebhook.js';
-import pageRoutes from './routes/PageRoutes.js'
+import pageRoutes from './routes/pageRoutes.js'
 import User from './models/User.js';
 import Conversation from './models/Conversation.js';
 import cors from "cors";
