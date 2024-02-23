@@ -57,7 +57,7 @@ const configurePassport = (passport) => {
             console.log('profile', profile);
 
             
-            done(null, profile);
+            done(null, user);
             console.log('Done user/profile');
 
         } catch (error) {
