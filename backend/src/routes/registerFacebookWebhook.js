@@ -4,8 +4,8 @@ const registerFacebookWebhook = async (pageId, pageAccessToken) => {
     const webhookUrl = `https://graph.facebook.com/${pageId}/subscribed_apps`;
     const fields = 'messages,messaging_postbacks,conversations,message_deliveries'; // The list of fields you want to subscribe to
     // link - https://developers.facebook.com/docs/messenger-platform/webhooks#events for tags 
-    const callbackUrl = process.env.WEBHOOK_CALLBACK_URL; // Your webhook callback URL
-    const verifyToken = process.env.WEBHOOK_VERIFY_TOKEN; // Your verify token
+    const callbackUrl = process.env.WEBHOOK_CALLBACK_URL; 
+    const verifyToken = process.env.WEBHOOK_VERIFY_TOKEN; 
 
     const requestBody = {
         access_token: pageAccessToken,

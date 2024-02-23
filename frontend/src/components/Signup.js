@@ -12,14 +12,15 @@ const Signup = () => {
         e.preventDefault();
 
         try {
-            const response = await axios.post('/api/login', { email, password });
+
+            const response = await axios.post('/signup', { email, password });
 
             if (response.data.success) {
                 // Store the token or user ID in local storage
                 localStorage.setItem('token', response.data.token);
 
                 // Redirect to the home page
-                window.location.href = '/';
+                window.location.href = '/connect-pages';
             } else {
                 setError('Invalid email or password');
             }

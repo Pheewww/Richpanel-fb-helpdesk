@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import API from '../api.js';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -10,15 +11,19 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+
+        console.log('// LOGIN BEGINS');
+
         try {
-            const response = await axios.post('/api/login', { email, password });
+            const response = await axios.post('/login', { email, password });
 
             if (response.data.success) {
                 // Store the token / user ID in local storage 
                 localStorage.setItem('token', response.data.token);
 
                 // Redirect to the home page
-                window.location.href = '/';
+                window.location.href = '/connect-pages';
+                console.log('// LOGIN DONE');
             } else {
                 setError('Invalid email or password');
             }

@@ -10,15 +10,20 @@ function Pages() {
 
         console.log('// going for page search');
         // Add your token retrieval logic here
+
+        
         const token = localStorage.getItem('token');
+        console.log('// User Token', token);
+
         if (!token) {
-            navigate('/login'); // Redirect to login if no token is found
+            navigate('/'); // Redirect to login if no token is found
         }
 
-        axios.get('/api/user/facebook-page', {
+        axios.get('/user/facebook-page', {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
+
         })
             .then(response => {
                 console.log('// found a page ');
@@ -37,7 +42,7 @@ function Pages() {
         console.log('// going for page disconnect');
         const pageId = ''; 
 
-        axios.post('/api/user/facebook-page/disconnect', { pageId }, {
+        axios.post('/user/facebook-page/disconnect', { pageId }, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }

@@ -12,18 +12,32 @@ const configurePassport = (passport) => {
     }, async (accessToken, _refreshToken, profile, done) => {
         try {
 
-            console.log('going for new user search');
-            let user = await User.findOne({ facebookId: profile.id });
-            if (!user) {
-                // new user in db without Access Tokens initially
-                user = await User.create({
-                    facebookId: profile.id,
-                    displayName: profile.displayName,
+            // console.log('going for new user search');
+            // let user = await User.findOne({ facebookId: profile.id });
+            // if (!user) {
+            //     // new user in db without Access Tokens initially
+            //     user = await User.create({
+            //         facebookId: profile.id,
+            //         displayName: profile.displayName,
 
-                });
-                console.log('new user created');
+            //     });
+            //     console.log('new user created');
 
+            // }
+            const userId = req.user._id;
+            console.log('user ID ->', user);
+             
+            let user1 = await User.findById(userId);
+
+           
+            if (user1) {
+                 
+                user1.facebookId = profile.id; 
+                user1.displayName = profile.displayName;  
+
+                await user1.save();
             }
+            console.log('new user created');
 
 
             console.log('Fetch access tokens');
@@ -32,7 +46,16 @@ const configurePassport = (passport) => {
                 .then(res => res.json())
                 .catch(err => { throw new Error(err) });
 
-            console.log('Update ');
+            console.log('Update New User ACCESS TOKENS ');
+
+            // if (pagesData.data && pagesData.data.length > 0) {
+            //     const firstPage = pagesData.data[0]; // Assuming you want to store the first page's data
+            //     user.pageId = firstPage.id;
+            //     user.accessToken = firstPage.access_token;
+            //     user.name = firstPage.name;
+            // } else {
+            //     console.log('Data from Graph API is not received');
+            // }
             if (pagesData.data) {
                 user.pageAccessTokens = pagesData.data.map(page => ({
                     pageId: page.id,

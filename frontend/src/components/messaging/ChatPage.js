@@ -18,8 +18,8 @@ const ChatPage = () => {
             try {
 
                 console.log('Going to fetch convo');
-                const result = await axios.get('/conversations');
-                console.log('set convo ');
+                const result = await axios.get('http://localhost:5000/conversations');
+                console.log('I AM IN FETCH CONVERSATION ');
 
                 setConversations(result.data);
                 console.log('convo brought');
@@ -40,7 +40,7 @@ const ChatPage = () => {
             try {
                 console.log('Going to fetch msg in convo');
 
-                const result = await axios.get(`/conversations/${selectedConversation._id}/messages`);
+                const result = await axios.get(`http://localhost:5000/conversations/${selectedConversation._id}/messages`);
                 console.log('found msg in convo');
 
                 setMessages(result.data.messages);
@@ -60,7 +60,7 @@ const ChatPage = () => {
 
     const selectConversation = async (conversationId) => {
         try {
-            const result = await axios(`/conversations/${conversationId}`);
+            const result = await axios(`http://localhost:5000/conversations/${conversationId}`);
             setSelectedConversation(result.data);
             setMessages(result.data.messages);
         } catch (error) {

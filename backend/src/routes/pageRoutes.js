@@ -1,17 +1,26 @@
 import express from 'express';
 import User from '../models/User.js';
+import passport from 'passport';
+import { Strategy as jwt } from 'passport-jwt';
+import opts from '../middlewares/auth.js'
+
 
 
 const pageRoutes = express.Router();
+pageRoutes.use(passport.initialize());
 
-pageRoutes.get('api/user/facebook-page', async (req, res) => {
-    console.log('// going for page search');
+pageRoutes.get('/user/facebook-page', passport.authenticate('jwt', { session: false }), async (req, res) => {
+
+    const user1 = req.user;
+    console.log('// going for page search, also user ->', user1);
 
     const userId = req.user._id;
     try {
         const user = await User.findById(userId);
+        console.log('// user ', user);
+
         if (!user || !user.pageAccessTokens.length) {
-            return res.status(404).send( "No Facebook page connected." );
+            return res.status(404).send("No Facebook page connected.");
         }
 
         console.log('// Page found ');
@@ -20,7 +29,7 @@ pageRoutes.get('api/user/facebook-page', async (req, res) => {
         res.json({ pageName: user.pageAccessTokens[0].name });
     } catch (error) {
         console.error('Error fetching Facebook page:', error);
-        res.status(500).send( 'An error occurred while fetching the Facebook page' );
+        res.status(500).send('An error occurred while fetching the Facebook page');
     }
 });
 
@@ -28,7 +37,7 @@ pageRoutes.get('api/user/facebook-page', async (req, res) => {
 pageRoutes.post('/api/user/facebook-page/disconnect', async (req, res) => {
     console.log('// going for page disconect');
     const userId = req.user._id;
-    const { pageId } = req.body; 
+    const { pageId } = req.body;
 
     try {
         const user = await User.findById(userId);

@@ -5,7 +5,6 @@ import {  handlePostback, processWebhookEvent } from '../utils/messageHandlers.j
 
 const webhookRoutes = express.Router();
 
-// Apply body-parser middleware to parse the JSON body of incoming POST requests
 webhookRoutes.use(bodyParser.json());
 
 webhookRoutes.get('/webhook', (req, res) => {

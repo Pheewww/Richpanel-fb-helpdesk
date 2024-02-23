@@ -5,6 +5,7 @@ import session from 'express-session';
 import authRoutes from './routes/authRoutes.js';
 import configurePassport from './routes/passportConfig.js';
 import webhookRoutes from './routes/webhookRoutes.js';
+import loginRoutes from './routes/loginRoutes.js';
 import registerFacebookWebhook from './routes/registerFacebookWebhook.js';
 import pageRoutes from './routes/pageRoutes.js'
 import User from './models/User.js';
@@ -21,7 +22,7 @@ app.use(cors({
     credentials: true
 }))
 
-// mongoose.connect('mongodb+srv://umang:XZqQmOC7LtUPLCNu@cluster01.2gtklha.mongodb.net/test?retryWrites=true&w=majority')
+// mongoose.connect('mongodb+srv://umang:XZqQmOC7LtUPLCNu@cluster01.2gtklha.mongodb.net?retryWrites=true&w=majority')
 //     .then(() => console.log('MongoDB Connected'))
 //     .catch(err => console.error('MongoDB connection FAILED', err));
 
@@ -40,15 +41,17 @@ app.use(session({
     saveUninitialized: true
 }));
 
+app.use(passport.initialize());
+app.use(passport.session());
 configurePassport(passport);
 
 
-app.use(passport.initialize());
-app.use(passport.session());
 
-app.use('/', authRoutes); 
+
+app.use('/', authRoutes);
 app.use('/', webhookRoutes);
 app.use('/', pageRoutes);
+app.use('/', loginRoutes);
 
 app.get('/test-webhook-registration', async (req, res) => {
     try {
@@ -89,8 +92,8 @@ app.post('/send-message', async (req, res) => {
         const newMessage = {
             text: messageText,
             timestamp: new Date(),
-            messageId: 'new-message-id', 
-            senderId: 'PAGE_ID', 
+            messageId: 'new-message-id',
+            senderId: 'PAGE_ID',
             recipientId: senderPsid,
         };
 
@@ -108,15 +111,29 @@ app.post('/send-message', async (req, res) => {
 });
 
 
-app.get('/conversations', async (req, res) => {
+app.get('/conversations', passport.authenticate('facebook', { failureMessage: true }), async (req, res) => {
     try {
         console.log('Working on collecting message for frontend');
+
+        if (!req.session.userId) {
+            return res.status(401).json({ message: 'User not authenticated' });
+        }
+
         const userId = req.session.userId;
-        console.log('userID ');
+        console.log('UserID:', userId);
 
+        // Find the user by their ID
         const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found." });
+        }
 
-        const conversations = await Conversation.find({ customerId: user.facebookId });
+        const pageId = user.pageAccessTokens[0]?.pageId;
+        if (!pageId) {
+            return res.status(404).json({ message: "No Facebook page connected for user." });
+        }
+
+        const conversations = await Conversation.find({ pageId: pageId });
         res.json(conversations);
         console.log('Found convo');
     } catch (error) {

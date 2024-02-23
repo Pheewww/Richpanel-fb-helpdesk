@@ -13,6 +13,17 @@ const userSchema = new mongoose.Schema({
     }]
 });
 
+// const userSchema = new mongoose.Schema({
+//     facebookId: { type: String, unique: true },
+//     displayName: String,
+//     email: { type: String, unique: true, sparse: true },
+//     password: { type: String, sparse: true },
+//     pageAccessTokens: String,
+//     pageId: String,
+//     accessToken: String,
+//     name: String,
+// });
+
 userSchema.pre('save', async function (next) {
     if (this.isModified('password')) {
         this.password = await bcrypt.hash(this.password, 8);
