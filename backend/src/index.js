@@ -2,13 +2,16 @@ import express from 'express';
 import mongoose from 'mongoose';
 import passport from 'passport';
 import session from 'express-session';
-import authRoutes from './routes/authRoutes.js'; 
-import configurePassport from './routes/passportConfig.js'; 
-import  webhookRoutes  from './routes/webhookRoutes.js';  
-import registerFacebookWebhook  from './routes/registerFacebookWebhook.js';
+import authRoutes from './routes/authRoutes.js';
+import configurePassport from './routes/passportConfig.js';
+import webhookRoutes from './routes/webhookRoutes.js';
+import registerFacebookWebhook from './routes/registerFacebookWebhook.js';
+import pageRoutes from './routes/PageRoutes.js'
 import User from './models/User.js';
 import Conversation from './models/Conversation.js';
-import cors from "cors"
+import cors from "cors";
+import dotenv from 'dotenv';
+dotenv.config();
 
 
 
@@ -18,6 +21,9 @@ app.use(cors({
     credentials: true
 }))
 
+// mongoose.connect('mongodb+srv://umang:XZqQmOC7LtUPLCNu@cluster01.2gtklha.mongodb.net/test?retryWrites=true&w=majority')
+//     .then(() => console.log('MongoDB Connected'))
+//     .catch(err => console.error('MongoDB connection FAILED', err));
 
 
 try {
@@ -34,18 +40,18 @@ app.use(session({
     saveUninitialized: true
 }));
 
-configurePassport(passport); 
+configurePassport(passport);
 
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/', authRoutes); // This will mount your auth routes at the root path
-app.use('/', webhookRoutes); // This will mount your webhook routes at the root path
+app.use('/', authRoutes); 
+app.use('/', webhookRoutes);
+app.use('/', pageRoutes);
 
 app.get('/test-webhook-registration', async (req, res) => {
     try {
-        // Assuming you have a specific Page ID and Access Token for testing
         const testPageId = '189617477577877';
         const testPageAccessToken = 'EAAO89S9DSHkBO1FTW1hIoG23HdiCUeZCLy9y8IhZATm8Rvq59mZCbc5owHB9EDUK3FS8plmOzGfBKQxSOXNGzOALVJok41JNRBsa2nQ2oDzEux4w7BYTOAIK1ADOuAbYvT74mqzwToDOhA8IcPljwBzsqFZCZCq9pcmSgWN6Fo3HalnJuY4ruosD2oy1pQlYcVOT0qNMb3MmjvcLs88HdtBMZD';
 
@@ -65,7 +71,6 @@ app.post('/send-message', async (req, res) => {
     const { senderPsid, messageText, conversationId } = req.body;
 
     try {
-        // Send message to the user via Facebook Messenger
         const response = await axios.post(`https://graph.facebook.com/v19.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`, {
             recipient: { id: senderPsid },
             message: { text: messageText },
@@ -75,28 +80,47 @@ app.post('/send-message', async (req, res) => {
 
         console.log('Message sent:', response.data);
 
-        // Log the message in the conversation
-        const now = new Date();
         const conversation = await Conversation.findById(conversationId);
-
         if (!conversation) {
             return res.status(404).json({ error: 'Conversation not found.' });
         }
+        console.log('msg in db ');
 
-        conversation.messages.push({
+        const newMessage = {
             text: messageText,
-            sentAt: now,
-            outgoing: true // Optional: Mark the message as outgoing
-        });
+            timestamp: new Date(),
+            messageId: 'new-message-id', 
+            senderId: 'PAGE_ID', 
+            recipientId: senderPsid,
+        };
 
+        conversation.messages.push(newMessage);
         await conversation.save();
 
-        res.json({ message: 'Message sent and logged successfully.' });
+        console.log('msg saved in db');
+
+
+        res.json({ message: 'Message sent and logged successfully.', ...newMessage });
     } catch (error) {
         console.error('Failed to send or log message:', error);
         res.status(500).json({ error: 'Failed to send or log message' });
     }
 });
+
+
+app.get('/api/conversations', async (req, res) => {
+    try {
+        console.log('Working on collecting message for frontend');
+        const userId = req.user._id;
+        const conversations = await Conversation.find({ customerId: userId });
+        res.json(conversations);
+    } catch (error) {
+        console.error('Error fetching conversations:', error);
+        res.status(500).json({ message: 'An error occurred while fetching conversations' });
+    }
+});
+
+
 
 
 const PORT = process.env.PORT || 5000;

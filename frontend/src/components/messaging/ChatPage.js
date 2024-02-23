@@ -16,8 +16,14 @@ const ChatPage = () => {
     useEffect(() => {
         const fetchConversations = async () => {
             try {
+
+                console.log('Going to fetch convo');
                 const result = await axios('/api/conversations');
+                console.log('set convo ');
+
                 setConversations(result.data);
+                console.log('convo brought');
+
             } catch (error) {
                 console.error('Failed to fetch conversations:', error);
             }
@@ -32,7 +38,11 @@ const ChatPage = () => {
     const fetchMessages = useCallback(async () => {
         if (selectedConversation) {
             try {
+                console.log('Going to fetch msg in convo');
+
                 const result = await axios(`/api/conversations/${selectedConversation._id}/messages`);
+                console.log('found msg in convo');
+
                 setMessages(result.data.messages);
             } catch (error) {
                 console.error('Failed to fetch messages for conversation:', error);
@@ -62,25 +72,25 @@ const ChatPage = () => {
         if (selectedConversation) {
             try {
                 // Send message to the server
-                const response = await axios.post(`https://graph.facebook.com/LATEST-API-VERSION/PAGE_ID/messages?access_token=PAGE-ACCESS-TOKEN`, {
-                    recipient: {
-                        id: selectedConversation.customerId
-                    },
-                    message_type: "RESPONSE",
-                    message: {
-                        text: text
-                    }
+                console.log('send msg to server');
+                const response = await axios.post('/send-message', {
+                    senderPsid: selectedConversation.customerId,
+                    messageText: text,
+                    conversationId: selectedConversation._id
                 });
 
-                console.log('Message sent!', response.data);
+                console.log('Message sent and logged!', response.data);
+                console.log('Working on showing message on screen ');
 
-                //  messages state to show the new message
+
+
                 const newMessage = {
                     text: text,
-                    timestamp: new Date(),
-                    messageId: response.data.message_id,
-                    senderId: 'PAGE_ID', 
-                    recipientId: selectedConversation.customerId
+                    timestamp: response.data.sentAt,
+                    messageId: response.data.messageId,
+                    senderId: 'PAGE_ID', // Replace with actual Page ID
+                    recipientId: selectedConversation.customerId,
+                    outgoing: true
                 };
                 setMessages([...messages, newMessage]);
             } catch (error) {

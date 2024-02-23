@@ -1,7 +1,6 @@
-import Conversation from '../models/Conversation.js'; // import your Conversation model
+import Conversation from '../models/Conversation.js'; 
 
-// This assumes you have a Conversation model with a schema that includes fields for
-// customerId, pageId, lastMessageAt, and messages (as an array of message objects).
+
 
 const processWebhookEvent = async (webhook_event) => {
     const sender_psid = webhook_event.sender.id;
@@ -47,34 +46,6 @@ const processWebhookEvent = async (webhook_event) => {
     }
 };
 
-// const handleMessage = async (senderPsid, receivedMessage, conversationId) => {
-//     try {
-//         // Logic to save the message to the conversation in the database -- frontend to user
-//         const now = new Date();
-//         const conversation = await Conversation.findById(conversationId);
-//         if (!conversation) {
-//             throw new Error(`Conversation with ID ${conversationId} not found.`);
-//         }
-
-//         conversation.messages.push({
-//             messageId: receivedMessage.mid,
-//             text: receivedMessage.text,
-//             //attachments: receivedMessage.attachments,
-//             sentAt: now
-//         });
-
-//         await conversation.save();
-
-//         const response = {
-//             text: `You sent the message: "${receivedMessage.text}"!`
-//         };
-
-//         // Send a response message via the Send API
-//         await callSendAPI(senderPsid, response);
-//     } catch (error) {
-//         console.error('Failed to handle message:', error);
-//     }
-// };
 
 const handlePostback = (senderPsid, receivedPostback) => {
     let response;

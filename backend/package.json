@@ -2,6 +2,7 @@
   "name": "richpanel_backend",
   "version": "1.0.0",
   "description": "",
+  "proxy": "http://localhost:3000",
   "type": "module",
   "main": "index.js",
   "scripts": {

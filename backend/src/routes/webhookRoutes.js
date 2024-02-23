@@ -47,12 +47,13 @@ webhookRoutes.post('/webhook', (req, res) => {
         body.entry.forEach((entry) => {
             const webhook_event = entry.messaging[0];
             console.log(JSON.stringify(webhook_event));
+            console.log(webhook_event);
 
-            if (webhook_event.sender && webhook_event.sender.id) {
+            if (webhook_event.message) {
                 console.log('Sender PSID: ' + webhook_event.sender.id);
                 processWebhookEvent(webhook_event)
             }
-            else if (webhook_event.postback && webhook_event.sender && webhook_event.sender.id) {
+            else if (webhook_event.postback) {
                 handlePostback(webhook_event.sender.id, webhook_event.postback);
             } else {
                 console.log('Sender ID not found or event type not handled', webhook_event);
