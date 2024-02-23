@@ -33,12 +33,16 @@ const configurePassport = (passport) => {
                 .catch(err => { throw new Error(err) });
 
             console.log('Update ');
-            // 
-            user.pageAccessTokens = pagesData.data.map(page => ({
-                pageId: page.id,
-                accessToken: page.access_token,
-                name: page.name,
-            }));
+            if (pagesData.data) {
+                user.pageAccessTokens = pagesData.data.map(page => ({
+                    pageId: page.id,
+                    accessToken: page.access_token,
+                    name: page.name,
+                }));
+            } else {
+                console.log('data from graph api is not received');
+            }
+
 
             //Get Long_lived Tokens
 
@@ -52,7 +56,7 @@ const configurePassport = (passport) => {
             console.log('user', user);
             console.log('profile', profile);
 
-            done(null, user);
+            
             done(null, profile);
             console.log('Done user/profile');
 
