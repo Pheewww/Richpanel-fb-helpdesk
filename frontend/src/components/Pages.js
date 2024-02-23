@@ -19,7 +19,7 @@ function Pages() {
             navigate('/'); // Redirect to login if no token is found
         }
 
-        axios.get('/user/facebook-page', {
+        axios.get('http://localhost:5000/user/facebook-page', {
             headers: {
                 'Authorization': `Bearer ${token}`
             }

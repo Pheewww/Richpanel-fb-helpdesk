@@ -15,7 +15,7 @@ const Login = () => {
         console.log('// LOGIN BEGINS');
 
         try {
-            const response = await axios.post('/login', { email, password });
+            const response = await axios.post('http://localhost:5000/login', { email, password });
 
             if (response.data.success) {
                 // Store the token / user ID in local storage 

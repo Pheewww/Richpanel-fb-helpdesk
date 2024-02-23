@@ -13,7 +13,7 @@ const Signup = () => {
 
         try {
 
-            const response = await axios.post('/signup', { email, password });
+            const response = await axios.post('http://localhost:5000/signup', { email, password });
 
             if (response.data.success) {
                 // Store the token or user ID in local storage

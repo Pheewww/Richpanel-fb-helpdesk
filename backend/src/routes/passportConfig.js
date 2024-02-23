@@ -12,32 +12,20 @@ const configurePassport = (passport) => {
     }, async (accessToken, _refreshToken, profile, done) => {
         try {
 
-            // console.log('going for new user search');
-            // let user = await User.findOne({ facebookId: profile.id });
-            // if (!user) {
-            //     // new user in db without Access Tokens initially
-            //     user = await User.create({
-            //         facebookId: profile.id,
-            //         displayName: profile.displayName,
+            console.log('going for new user search');
+            let user = await User.findOne({ facebookId: profile.id });
+            if (!user) {
+                // new user in db without Access Tokens initially
+                user = await User.create({
+                    facebookId: profile.id,
+                    displayName: profile.displayName,
 
-            //     });
-            //     console.log('new user created');
+                });
+                console.log('new user created');
 
-            // }
-            const userId = req.user._id;
-            console.log('user ID ->', user);
-             
-            let user1 = await User.findById(userId);
-
-           
-            if (user1) {
-                 
-                user1.facebookId = profile.id; 
-                user1.displayName = profile.displayName;  
-
-                await user1.save();
             }
-            console.log('new user created');
+
+            
 
 
             console.log('Fetch access tokens');
