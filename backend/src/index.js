@@ -12,11 +12,14 @@ import User from './models/User.js';
 import Conversation from './models/Conversation.js';
 import cors from "cors";
 import dotenv from 'dotenv';
+import authenticateToken from './middlewares/authMiddleware.js';
 dotenv.config();
 
 
 
 const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use(cors({
     origin: process.env.CORS_ORIGIN,
     credentials: true
@@ -38,12 +41,13 @@ try {
 app.use(session({
     secret: 'process.env.EXPRESS_SESSION_SECRET',
     resave: true,
-    saveUninitialized: true
+    saveUninitialized: false,
 }));
 
 app.use(passport.initialize());
 app.use(passport.session());
 configurePassport(passport);
+app.use(passport.authenticate('session'));
 
 
 
@@ -67,6 +71,31 @@ app.get('/test-webhook-registration', async (req, res) => {
 });
 
 
+pageRoutes.get('/facebook-page1', authenticateToken, async (req, res) => {
+
+    const user1 = req.body;
+    console.log('// going for page search, also user ->', user1);
+
+    const userId = req.user;
+    try {
+        const user = await User.findById(userId);
+        console.log('// user ', user);
+        //console.log('user email', user.email);
+
+
+        if (!user || !user.pageAccessTokens.length) {
+            return res.status(404).send("No Facebook page connected.");
+        }
+
+        console.log('// Page found ');
+
+        // Send back the name of the first connected page
+        res.json({ pageName: user.pageAccessTokens[0].name });
+    } catch (error) {
+        console.error('Error fetching Facebook page:', error);
+        res.status(500).send('An error occurred while fetching the Facebook page');
+    }
+});
 
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
 
@@ -74,7 +103,7 @@ app.post('/send-message', async (req, res) => {
     const { senderPsid, messageText, conversationId } = req.body;
 
     try {
-        const response = await axios.post(`https://graph.facebook.com/v19.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`, {
+        const response = await axios.post(`https://graph.facebook.com/v19.0/${pageId}/messages?access_token=${PAGE_ACCESS_TOKEN}`, {
             recipient: { id: senderPsid },
             message: { text: messageText },
             messaging_type: 'RESPONSE',
@@ -110,37 +139,6 @@ app.post('/send-message', async (req, res) => {
     }
 });
 
-
-app.get('/conversations', passport.authenticate('facebook', { failureMessage: true }), async (req, res) => {
-    try {
-        console.log('Working on collecting message for frontend');
-
-        if (!req.session.userId) {
-            return res.status(401).json({ message: 'User not authenticated' });
-        }
-
-        const userId = req.session.userId;
-        console.log('UserID:', userId);
-
-        // Find the user by their ID
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).json({ message: "User not found." });
-        }
-
-        const pageId = user.pageAccessTokens[0]?.pageId;
-        if (!pageId) {
-            return res.status(404).json({ message: "No Facebook page connected for user." });
-        }
-
-        const conversations = await Conversation.find({ pageId: pageId });
-        res.json(conversations);
-        console.log('Found convo');
-    } catch (error) {
-        console.error('Error fetching conversations:', error);
-        res.status(500).json({ message: 'An error occurred while fetching conversations' });
-    }
-});
 
 
 

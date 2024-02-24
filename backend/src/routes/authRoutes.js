@@ -10,10 +10,11 @@ router.get('/auth/facebook',
 );
 
 router.get('/auth/facebook/callback',
-    passport.authenticate('facebook', { failureRedirect: '/login' }),
+    passport.authenticate('facebook', { successRedirect: '/pages', }),
     async (req, res) => {
         try {
             const user = await User.findOne({ facebookId: req.user.facebookId });
+            //email: req.user.email
             if (!user) {
                 console.log('User not found after Facebook auth.');
                // return res.redirect('/login');

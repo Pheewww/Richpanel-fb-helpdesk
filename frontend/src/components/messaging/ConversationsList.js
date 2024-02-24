@@ -3,7 +3,7 @@ import React from 'react';
 const ConversationList = ({ conversations, onSelectConversation }) => {
     return (
         <div className="w-1/4 bg-gray-100 h-screen overflow-y-auto">
-            {conversations.map((conversation) => (
+            {Array.isArray(conversations) && conversations.map((conversation) => (
                 <div
                     key={conversation.id}
                     className="p-4 hover:bg-blue-50 cursor-pointer"

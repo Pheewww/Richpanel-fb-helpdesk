@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API from '../api.js';
 
 function Pages() {
     const navigate = useNavigate();
@@ -10,16 +11,21 @@ function Pages() {
 
         console.log('// going for page search');
         // Add your token retrieval logic here
+        const email = localStorage.getItem('email');
+        console.log('// User email', email);
+        if (!email) {
+            console.log('No email found');
+           
+        }
 
-        
         const token = localStorage.getItem('token');
         console.log('// User Token', token);
 
-        if (!token) {
-            navigate('/'); // Redirect to login if no token is found
-        }
+        // if (!token) {
+        //     navigate('/'); // Redirect to login if no token is found
+        // }
 
-        axios.get('http://localhost:5000/user/facebook-page', {
+        axios.get('http://localhost:5000/facebook-page1', {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -40,7 +46,7 @@ function Pages() {
     const disconnectPage = () => {
 
         console.log('// going for page disconnect');
-        const pageId = ''; 
+        const pageId = '';
 
         axios.post('/user/facebook-page/disconnect', { pageId }, {
             headers: {
@@ -48,7 +54,7 @@ function Pages() {
             }
         })
             .then(response => {
-                console.log(response.data); // The JSON is automatically parsed
+                console.log(response.data);
                 setPageName('No page connected');
             })
             .catch(error => {
@@ -70,7 +76,7 @@ function Pages() {
                     </button>
                     <button
                         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full text-center"
-                        onClick={() => navigate('/chat')} // Navigates to the chat page
+                        onClick={() => navigate('/chat')}
                     >
                         Reply To Messages
                     </button>

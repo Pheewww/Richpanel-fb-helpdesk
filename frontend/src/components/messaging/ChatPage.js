@@ -4,6 +4,9 @@ import axios from 'axios';
 import ConversationList from './ConversationsList';
 import MessagePanel from './MessagePanel';
 import CustomerProfile from './CustomerProfile';
+import { useNavigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
+
 
 const ChatPage = () => {
     const [conversations, setConversations] = useState([]);
@@ -11,22 +14,63 @@ const ChatPage = () => {
     const [messages, setMessages] = useState([]);
     const [customerProfile, setCustomerProfile] = useState(null);
 
-    const pollingInterval = 3000;
+    const pollingInterval = 30000;
+    const navigate = useNavigate();
 
     useEffect(() => {
+
         const fetchConversations = async () => {
             try {
 
-                console.log('Going to fetch convo');
-                const result = await axios.get('http://localhost:5000/conversations');
-                console.log('I AM IN FETCH CONVERSATION ');
+              
+                const email = localStorage.getItem('email');
+                console.log('// User email', email);
+                if (!email) {
+                  console.log('No email found');
+                    return; // Redirect to login if no token is found
+                }
+                const token = localStorage.getItem('token');
+                console.log('// User Token', token);
+                if (!token) {
+                    navigate('/');
+                    return; // Redirect to login if no token is found
+                }
 
-                setConversations(result.data);
-                console.log('convo brought');
+                console.log('Going to fetch convo');
+                //             , { headers: {
+                //             'Authorization': `Bearer ${token}`
+                // }}
+                // axios.get('http://localhost:5000/conversations').then(response => {
+                //     console.log('// found a convo ');
+                //     //setPageID(response.data.pageName);
+                //     setConversations(response.data);
+
+
+                //     console.log('I AM IN FETCH CONVERSATION -- PAGE ID ', response.data.pageId);
+
+                // })
+                //     .catch(error => {
+                //         console.error('Error fetching Convo ', error);
+                //         //setPageID('No page connected');
+                //         // console.log('convo brought', response.data);
+                //         setConversations('No convo found');
+
+                //     });
+
+                const response = await axios.get('http://localhost:5000/conversations', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                setConversations(response.data);
+                console.log('// end of search ');
 
             } catch (error) {
-                console.error('Failed to fetch conversations:', error);
+                console.error('Error fetching conversations:', error);
+                if (error.response && error.response.status === 401) {
+                    navigate('/');
             }
+        }
         };
 
         fetchConversations();
@@ -73,7 +117,7 @@ const ChatPage = () => {
             try {
                 // Send message to the server
                 console.log('send msg to server');
-                const response = await axios.post('/send-message', {
+                const response = await axios.post('http://localhost:5000/send-message', {
                     senderPsid: selectedConversation.customerId,
                     messageText: text,
                     conversationId: selectedConversation._id
@@ -106,6 +150,11 @@ const ChatPage = () => {
             {customerProfile && <CustomerProfile profile={customerProfile} />}
         </div>
     );
+};
+
+ConversationList.propTypes = {
+    conversations: PropTypes.array.isRequired,
+    onSelectConversation: PropTypes.func.isRequired,
 };
 
 export default ChatPage;
