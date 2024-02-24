@@ -25,7 +25,7 @@ const configurePassport = (passport) => {
 
             // }
 
-            const emailId = profile.emails[0];
+            const emailId = profile.emails[0].value;
             let user = await User.findOne({ email: emailId });
             if (!user) {
                 // new user in db without Access Tokens initially
@@ -34,7 +34,7 @@ const configurePassport = (passport) => {
 
 
             } else {
-                user = await User.create({
+                user = await User.findOneAndUpdate({
                     facebookId: profile.id,
                     displayName: profile.displayName,
 
