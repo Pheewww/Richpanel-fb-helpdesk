@@ -81,11 +81,40 @@ const configurePassport = (passport) => {
 
             await user.save();
 
+
+            // user.pageAccessTokens.forEach(async (page) => {
+            //     const postData = {
+            //         pageId: page.pageId,
+            //         accessToken: page.accessToken,
+            //         pageName: page.name,
+            //         facebookId: profile.id,
+            //         displayName: profile.displayName,
+            //     };
+
+            //     try {
+            //         const response = await fetch('https://www.example.com/user/facebook-page', {
+            //             method: 'POST',
+            //             headers: {
+            //                 'Content-Type': 'application/json',
+                           
+            //             },
+            //             body: JSON.stringify(postData),
+            //         });
+
+            //         const responseData = await response.json();
+            //         console.log('POST to /user/facebook-page succeeded:', responseData);
+            //     } catch (error) {
+            //         console.error('Error posting to /user/facebook-page:', error);
+            //     }
+            // });
+
+            
+
             console.log('user', user);
             console.log('profile', profile);
 
             
-            //done(null, user);
+            done(null, user);
             console.log('Done user/profile');
 
         } catch (error) {

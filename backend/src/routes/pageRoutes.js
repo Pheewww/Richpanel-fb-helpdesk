@@ -9,9 +9,9 @@ import opts from '../middlewares/auth.js'
 const pageRoutes = express.Router();
 pageRoutes.use(passport.initialize());
 
-pageRoutes.get('/user/facebook-page', passport.authenticate('jwt', { session: false }), async (req, res) => {
+pageRoutes.get('/user/facebook-page', passport.authenticate('facebook', { session: true }), async (req, res) => {
 
-    const user1 = req.user;
+    const  user1 = req.user;
     console.log('// going for page search, also user ->', user1);
 
     const userId = req.user._id;
