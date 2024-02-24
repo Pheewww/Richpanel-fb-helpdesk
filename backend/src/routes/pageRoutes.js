@@ -5,39 +5,40 @@ import 'dotenv/config';
 
 //import { Strategy as jwt } from 'passport-jwt';
 //import opts from '../middlewares/auth.js'
-import '../middlewares/auth.js';
+import '../middlewares/authLocal.js';
 
 
 
 const pageRoutes = express.Router();
 pageRoutes.use(passport.initialize());
+pageRoutes.use(passport.session());
 
-pageRoutes.get('/facebook-page', passport.authenticate('facebook', { session: false }), async (req, res) => {
+// pageRoutes.get('/facebook-page', passport.authenticate('facebook', { session: false }), async (req, res) => {
 
-    const user1 = req.user;
-    console.log('// going for page search, also user ->', user1);
+//     const user1 = req.user;
+//     console.log('// going for page search, also user ->', user1);
 
-    const userId = req.user._id;
-    try {
-        const user = await User.findById(userId);
-        console.log('// user ', user);
-        //console.log('user email', user.email);
-
-
-        if (!user || !user.pageAccessTokens.length) {
-            return res.status(404).send("No Facebook page connected.");
-        }
+//     const userId = req.user._id;
+//     try {
+//         const user = await User.findById(userId);
+//         console.log('// user ', user);
+//         //console.log('user email', user.email);
 
 
-        console.log('// Page found ');
+//         if (!user || !user.pageAccessTokens.length) {
+//             return res.status(404).send("No Facebook page connected.");
+//         }
 
-        // Send back the name of the first connected page
-        res.json({ pageName: user.pageAccessTokens[0].name });
-    } catch (error) {
-        console.error('Error fetching Facebook page:', error);
-        res.status(500).send('An error occurred while fetching the Facebook page');
-    }
-});
+
+//         console.log('// Page found ');
+
+//         // Send back the name of the first connected page
+//         res.json({ pageName: user.pageAccessTokens[0].name });
+//     } catch (error) {
+//         console.error('Error fetching Facebook page:', error);
+//         res.status(500).send('An error occurred while fetching the Facebook page');
+//     }
+// });
 
 
 pageRoutes.get('/conversations', passport.authenticate('jwt', { session: false }), async (req, res) => {

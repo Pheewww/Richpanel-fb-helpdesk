@@ -36,15 +36,15 @@ loginRoutes.post('/login', async (req, res) => {
             process.env.JWT_SECRET,
             { expiresIn: '1d' })
 
-       
 
-            return res.status(200).send({
-                    success: true,
-                    token: "Bearer " + token,
-                message: "Logged in successfully!",
-                 user: {email: user.email},
-                });
-        } catch (error) {
+
+        return res.status(200).send({
+            success: true,
+            token: "Bearer " + token,
+            message: "Logged in successfully!",
+            user: { email: user.email },
+        });
+    } catch (error) {
         console.error('Login error:', error);
         res.status(500).json({ message: 'Server error' });
     }
@@ -55,7 +55,7 @@ loginRoutes.post('/signup', async (req, res) => {
     const { name, email, password } = req.body;
 
     try {
-        
+
         console.log('// User Signup Begins');
 
         let user = await User.findOne({ email });
@@ -63,6 +63,10 @@ loginRoutes.post('/signup', async (req, res) => {
             return res.status(400).json({ message: 'User already exists. Try Login' });
 
         }
+
+
+        user.password = await bcrypt.hash(password, 7);
+
 
         user = new User({
             displayName: name,
@@ -87,7 +91,7 @@ loginRoutes.post('/signup', async (req, res) => {
                 error: err
             })
         })
-    
+
         console.log('// User added in DB');
 
         const payload = {
@@ -101,7 +105,7 @@ loginRoutes.post('/signup', async (req, res) => {
         jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '24h' }, (err, token) => {
             if (err) throw err;
             res.status(201).json({ success: true, token: "Bearer " + token, email: user.email });
-        ;
+            ;
         });
         console.log('// User given the JWT');
 

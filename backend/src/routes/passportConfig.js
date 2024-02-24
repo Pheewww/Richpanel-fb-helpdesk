@@ -11,43 +11,31 @@ const configurePassport = (passport) => {
         profileFields: ['id','displayName','emails'], 
     }, async (accessToken, _refreshToken, profile, done) => {
         try {
-
+            // profileFields: ['id', 'displayName', 'photos', 'email']
             console.log('going for new user search');
-            // let user = await User.findOne({ facebookId: profile.id });
-            // if (!user) {
-            //     // new user in db without Access Tokens initially
-            //     user = await User.create({
-            //         facebookId: profile.id,
-            //         displayName: profile.displayName,
+            let user = await User.findOne({ facebookId: profile.id });
+            if (!user) {
+                // new user in db without Access Tokens initially
+                user = await User.create({
+                    facebookId: profile.id,
+                    displayName: profile.displayName,
 
-            //     });
-            //     console.log('new user created');
+                });
+                console.log('new user created -- NO EMAIL');
 
-            // }
+            }
 
             const emailId = profile.emails[0].value;
-            let user = await User.findOne({ email: emailId });
-            if (user) {
+            let user1 = await User.findOne({ email: emailId });
+            if (user1) {
                 // new user in db without Access Tokens initially
                 user = await User.findOneAndUpdate({
                     facebookId: profile.id,
                     displayName: profile.displayName,
 
                 });
-                console.log('new user created');
-               
-
-
-            } else {
-                user = await User.create({
-                    facebookId: profile.id,
-                    displayName: profile.displayName,
-
-                });
-                console.log('USER NOT FOUND ->new user created');
-
-               
-            }
+                console.log('new user created -- WITH EMAIL');
+            } 
 
             
 
@@ -70,6 +58,11 @@ const configurePassport = (passport) => {
             // }
             if (pagesData.data) {
                 user.pageAccessTokens = pagesData.data.map(page => ({
+                    pageId: page.id,
+                    accessToken: page.access_token,
+                    name: page.name,
+                }));
+                user1.pageAccessTokens = pagesData.data.map(page => ({
                     pageId: page.id,
                     accessToken: page.access_token,
                     name: page.name,

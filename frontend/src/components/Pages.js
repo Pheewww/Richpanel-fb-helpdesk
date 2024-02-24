@@ -15,7 +15,7 @@ function Pages() {
         console.log('// User email', email);
         if (!email) {
             console.log('No email found');
-           
+
         }
 
         const token = localStorage.getItem('token');
@@ -25,7 +25,7 @@ function Pages() {
         //     navigate('/'); // Redirect to login if no token is found
         // }
 
-        axios.get('http://localhost:5000/facebook-page1', {
+        axios.get('http://localhost:5000/success', {
             headers: {
                 'Authorization': `Bearer ${token}`
             }

@@ -1,7 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import passport from 'passport';
-import session from 'express-session';
+import expressSession from 'express-session';
 import authRoutes from './routes/authRoutes.js';
 import configurePassport from './routes/passportConfig.js';
 import webhookRoutes from './routes/webhookRoutes.js';
@@ -12,7 +12,7 @@ import User from './models/User.js';
 import Conversation from './models/Conversation.js';
 import cors from "cors";
 import dotenv from 'dotenv';
-import authenticateToken from './middlewares/authMiddleware.js';
+import './middlewares/authLocal.js'
 dotenv.config();
 
 
@@ -38,14 +38,20 @@ try {
     process.exit(1)
 }
 
-app.use(session({
+app.use(expressSession({
     secret: 'process.env.EXPRESS_SESSION_SECRET',
-    resave: true,
+    resave: false,
     saveUninitialized: false,
 }));
 
 app.use(passport.initialize());
 app.use(passport.session());
+passport.serializeUser(function (user, cb) {
+    cb(null, user);
+});
+passport.deserializeUser(function (obj, cb) {
+    cb(null, obj);
+});
 configurePassport(passport);
 app.use(passport.authenticate('session'));
 
@@ -71,7 +77,7 @@ app.get('/test-webhook-registration', async (req, res) => {
 });
 
 
-pageRoutes.get('/facebook-page1', authenticateToken, async (req, res) => {
+pageRoutes.get('/facebook-page1', passport.authenticate('local', { session: false }), async (req, res) => {
 
     const user1 = req.body;
     console.log('// going for page search, also user ->', user1);
