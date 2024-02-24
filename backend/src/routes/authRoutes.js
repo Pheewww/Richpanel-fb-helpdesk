@@ -10,7 +10,7 @@ router.get('/auth/facebook',
 );
 
 router.get('/auth/facebook/callback',
-    passport.authenticate('facebook', { successRedirect: '/pages', }),
+    passport.authenticate('facebook'),
     async (req, res) => {
         try {
             const user = await User.findOne({ facebookId: req.user.facebookId });
