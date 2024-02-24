@@ -16,7 +16,7 @@ router.get('/auth/facebook/callback',
             const user = await User.findOne({ facebookId: req.user.facebookId });
             if (!user) {
                 console.log('User not found after Facebook auth.');
-                return res.redirect('/login');
+               // return res.redirect('/login');
             }
 
             console.log(`User ${user.facebookId} authenticated with Facebook.`);

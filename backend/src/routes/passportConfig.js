@@ -27,19 +27,26 @@ const configurePassport = (passport) => {
 
             const emailId = profile.emails[0].value;
             let user = await User.findOne({ email: emailId });
-            if (!user) {
+            if (user) {
                 // new user in db without Access Tokens initially
-                console.log('USER NOT FOUND');
-                return res.status(404).send("USER EMAIL NOT FOUND");
-
-
-            } else {
                 user = await User.findOneAndUpdate({
                     facebookId: profile.id,
                     displayName: profile.displayName,
 
                 });
                 console.log('new user created');
+               
+
+
+            } else {
+                user = await User.create({
+                    facebookId: profile.id,
+                    displayName: profile.displayName,
+
+                });
+                console.log('USER NOT FOUND ->new user created');
+
+               
             }
 
             
