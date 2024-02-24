@@ -1,14 +1,14 @@
 import passport from 'passport';
 import { Strategy as FacebookStrategy } from 'passport-facebook';
 import fetch from 'node-fetch';
-import User from '../models/User.js'; 
+import User from '../models/User.js';
 
 const configurePassport = (passport) => {
     passport.use(new FacebookStrategy({
         clientID: process.env.FACEBOOK_CLIENT_ID,
         clientSecret: process.env.CLIENT_SECRET,
         callbackURL: process.env.FACEBOOK_CALLBACK_URL,
-        profileFields: ['id','displayName','emails'], 
+        profileFields: ['id', 'displayName', 'emails'],
     }, async (accessToken, _refreshToken, profile, done) => {
         try {
 
@@ -35,7 +35,7 @@ const configurePassport = (passport) => {
 
                 });
                 console.log('new user created');
-               
+
 
 
             } else {
@@ -46,14 +46,14 @@ const configurePassport = (passport) => {
                 });
                 console.log('USER NOT FOUND ->new user created');
 
-               
+
             }
 
-            
+
 
 
             console.log('Fetch access tokens');
-            
+
             const pagesData = await fetch(`https://graph.facebook.com/${profile.id}/accounts?access_token=${accessToken}`)
                 .then(res => res.json())
                 .catch(err => { throw new Error(err) });
@@ -103,7 +103,7 @@ const configurePassport = (passport) => {
             //             method: 'POST',
             //             headers: {
             //                 'Content-Type': 'application/json',
-                           
+
             //             },
             //             body: JSON.stringify(postData),
             //         });
@@ -115,12 +115,12 @@ const configurePassport = (passport) => {
             //     }
             // });
 
-            
+
 
             console.log('user', user);
             console.log('profile', profile);
 
-            
+
             done(null, user);
             console.log('Done user/profile');
 
