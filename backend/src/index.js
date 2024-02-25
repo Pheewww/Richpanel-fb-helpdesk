@@ -47,7 +47,8 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 configurePassport(passport);
-
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 
 
@@ -159,6 +160,59 @@ app.get('/conversations', passport.authenticate('jwt', { failureMessage: true })
         res.status(500).json({ message: 'An error occurred while fetching conversations' });
     }
 });
+
+
+
+
+
+app.post('/data-deletion', async (req, res) => {
+    const signedRequest = req.body.signed_request;
+    const data = parseSignedRequest(signedRequest, process.env.CLIENT_SECRET);
+    if (!data) {
+        return res.status(400).send('Invalid signed request.');
+    }
+
+    const userId = data.user_id;
+
+    try {
+        // Assuming userId maps to facebookId in your User schema
+        await User.deleteOne({ facebookId: userId });
+        await Conversation.deleteMany({ customerId: userId });
+
+        const statusUrl = `https://richpanel-fb-helpdesk-1.onrender.com/deletion?id=${userId}`;
+        const confirmationCode = userId;
+
+        res.json({
+            url: statusUrl,
+            confirmation_code: confirmationCode,
+        });
+    } catch (error) {
+        console.error('Error deleting user data:', error);
+        return res.status(500).send('Internal Server Error');
+    }
+});
+
+function parseSignedRequest(signedRequest, secret) {
+    const [encodedSig, payload] = signedRequest.split('.', 2);
+
+    const sig = base64UrlDecode(encodedSig);
+    const data = JSON.parse(base64UrlDecode(payload));
+
+    const expectedSig = jwt.sign(payload, secret, { algorithm: 'HS256' }).split('.')[2];  
+
+    if (sig !== expectedSig) {
+        console.error('Bad Signed JSON signature!');
+        return null;
+    }
+
+    return data;
+}
+
+function base64UrlDecode(input) {
+    let base64 = input.replace(/-/g, '+').replace(/_/g, '/');
+    const buff = Buffer.from(base64, 'base64');
+    return buff.toString('ascii');
+}
 
 
 

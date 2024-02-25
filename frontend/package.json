@@ -2,7 +2,6 @@
   "name": "richpanel_assesment",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:3000",
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
@@ -23,7 +22,8 @@
     "redux-devtools-extension": "^2.13.9",
     "redux-thunk": "^3.1.0",
     "redux-toolkit": "^1.1.2",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "webpack": "^5.90.3"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -36,24 +36,24 @@ function Pages() {
         console.log('// end of search ');
     }, [navigate]);
 
-    const disconnectPage = () => {
+    // const disconnectPage = () => {
 
-        console.log('// going for page disconnect');
-        const pageId = ''; 
+    //     console.log('// going for page disconnect');
+    //     const pageId = ''; 
 
-        axios.post(`${process.env.REACT_APP_API_URL}/user/facebook-page/disconnect`, { pageId }, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-        })
-            .then(response => {
-                console.log(response.data); 
-                setPageName('No page connected. Did You Connect Ur FB Page');
-            })
-            .catch(error => {
-                console.error('Error disconnecting Facebook page:', error);
-            });
-    };
+    //     axios.post(`${process.env.REACT_APP_API_URL}/user/facebook-page/disconnect`, { pageId }, {
+    //         headers: {
+    //             'Authorization': `Bearer ${localStorage.getItem('token')}`
+    //         }
+    //     })
+    //         .then(response => {
+    //             console.log(response.data); 
+    //             setPageName('No page connected. Did You Connect Ur FB Page');
+    //         })
+    //         .catch(error => {
+    //             console.error('Error disconnecting Facebook page:', error);
+    //         });
+    // };
 
     return (
         <div className="flex justify-center items-center h-screen bg-blue-600">
@@ -61,12 +61,15 @@ function Pages() {
                 <h2 className="text-2xl font-bold mb-4 text-gray-800 text-center">Facebook Page Integration</h2>
                 <p className="mb-4 text-center">Integrated Page: {pageName}</p>
                 <div className="flex flex-col items-center space-y-4">
-                    <button
+            
+                       
+                 <a
+                        href="https://richpanel-fb-helpdesk-gwbm.onrender.com/delete-integration"
                         className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full text-center"
-                        onClick={disconnectPage}
-                    >
+                    > 
+                    
                         Delete Integration
-                    </button>
+                    </a>
                     <button
                         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full text-center"
                         onClick={() => navigate('/chat')} // Navigates to the chat page
