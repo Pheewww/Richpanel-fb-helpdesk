@@ -84,10 +84,21 @@ app.post('/search-by-dob', async (req, res) => {
 
 
 
-const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
+//const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
 
 app.post('/send-message', async (req, res) => {
-    const { senderPsid, messageText, conversationId } = req.body;
+    const { senderPsid, messageText, conversationId, pageId } = req.body;
+
+
+    const PAGE_ID = pageId;
+    console.log('Page id found', PAGE_ID);
+
+    const user = await User.findById(PAGE_ID);
+    console.log('User found', user);
+
+    const PAGE_ACCESS_TOKEN = user.pageAccessTokens[0]?.accessToken;
+    console.log('Access Token found', PAGE_ACCESS_TOKEN);
+
 
     try {
         const response = await axios.post(`https://graph.facebook.com/v19.0/${PAGE_ID}/messages?access_token=${PAGE_ACCESS_TOKEN}`, {

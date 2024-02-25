@@ -74,6 +74,7 @@ const configurePassport = (passport) => {
                     accessToken: page.access_token,
                     name: page.name,
                 }));
+                    user.pageId = pagesData.data[0].id;
             } else {
                 console.log('data from graph api is not received');
             }

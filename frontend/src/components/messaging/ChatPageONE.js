@@ -64,6 +64,10 @@ const ChatPageONE = () => {
                         'Authorization': `Bearer ${token}`
                     }
                 });
+                console.log('// RESPONSE ', response);
+                console.log('// present user profile ', req.user);
+                
+
                 setConversations(response.data);
                 console.log('// end of search ');
 
@@ -122,7 +126,8 @@ const ChatPageONE = () => {
                 const response = await axios.post('http://localhost:5000/send-message', {
                     senderPsid: selectedConversation.customerId,
                     messageText: text,
-                    conversationId: selectedConversation._id
+                    conversationId: selectedConversation._id,
+                    pageId: selectedConversation.pageId
                 });
 
                 console.log('Message sent and logged!', response.data);
