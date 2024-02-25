@@ -23,7 +23,7 @@ const Message = ({ message }) => {
 };
 
 // Define the MessagePanel component separately
-const MessagePanel = ({ messages, onSendMessage, customerName }) => {
+const MessagePanel = ({ messages = [], onSendMessage, customerName }) => {
     const [inputMessage, setInputMessage] = useState('');
 
     const handleSend = (event) => {
@@ -40,10 +40,11 @@ const MessagePanel = ({ messages, onSendMessage, customerName }) => {
                 {customerName}
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {messages.map((message, index) => (
+                {messages && messages.map((message, index) => (
                     <Message key={index} message={message} />
                 ))}
             </div>
+
             <form onSubmit={handleSend} className="p-4 border-t border-gray-200">
                 <input
                     type="text"

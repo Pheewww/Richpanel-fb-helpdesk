@@ -4,7 +4,7 @@ const CustomerProfile = ({ profile }) => {
     return (
         <div className="bg-white shadow rounded-lg">
             <div className="flex flex-col items-center p-4">
-                <img src={profile.picture} alt={profile.name} className="rounded-full h-24 w-24 border p-1" />
+                <img src={profile.profilePic} alt={profile.firstName} className="rounded-full h-24 w-24 border p-1" />
                 <h3 className="mt-2 font-bold text-lg">{profile.name}</h3>
                 <span className="text-gray-400">{profile.status}</span>
                 <div className="flex mt-4 space-x-2">
@@ -30,3 +30,7 @@ const CustomerProfile = ({ profile }) => {
 };
 
 export default CustomerProfile;
+
+
+
+

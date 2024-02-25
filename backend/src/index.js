@@ -4,6 +4,7 @@ import passport from 'passport';
 import session from 'express-session';
 import authRoutes from './routes/authRoutes.js';
 import configurePassport from './routes/passportConfig.js';
+import axios from 'axios';
 import webhookRoutes from './routes/webhookRoutes.js';
 import loginRoutes from './routes/loginRoutes.js';
 import registerFacebookWebhook from './routes/registerFacebookWebhook.js';
@@ -13,7 +14,20 @@ import Conversation from './models/Conversation.js';
 import cors from "cors";
 import dotenv from 'dotenv';
 dotenv.config();
+mongoose.connect('mongodb+srv://umang:0bbK5XsETIXE1VVi@cluster01.2gtklha.mongodb.net?retryWrites=true&w=majority', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+    .then(() => console.log('MongoDB Connected'))
+    .catch(err => console.error('MongoDB connection FAILED', err));
 
+// try {
+//     const connectionInstance = await mongoose.connect(`${process.env.MONGODB_URI}`)
+//     console.log(`\n MongoDB connected !! DB HOST: ${connectionInstance.connection.host}`);
+// } catch (error) {
+//     console.log("MONGODB connection FAILED ", error);
+//     process.exit(1)
+// }
 
 
 const app = express();
@@ -22,18 +36,7 @@ app.use(cors({
     credentials: true
 }))
 
-// mongoose.connect('mongodb+srv://umang:XZqQmOC7LtUPLCNu@cluster01.2gtklha.mongodb.net?retryWrites=true&w=majority')
-//     .then(() => console.log('MongoDB Connected'))
-//     .catch(err => console.error('MongoDB connection FAILED', err));
-
-
-try {
-    const connectionInstance = await mongoose.connect(`${process.env.MONGODB_URI}`)
-    console.log(`\n MongoDB connected !! DB HOST: ${connectionInstance.connection.host}`);
-} catch (error) {
-    console.log("MONGODB connection FAILED ", error);
-    process.exit(1)
-}
+app.use(express.json())
 
 app.use(session({
     secret: 'process.env.EXPRESS_SESSION_SECRET',
@@ -85,33 +88,49 @@ app.post('/search-by-dob', async (req, res) => {
 
 
 //const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
-
-app.post('/send-message', async (req, res) => {
+app.post('/user/chat/send-message',  async (req, res) => {
+    console.log('Received request to send message:', req.body);
     const { senderPsid, messageText, conversationId, pageId } = req.body;
 
 
+   
     const PAGE_ID = pageId;
-    console.log('Page id found', PAGE_ID);
-
-    const user = await User.findById(PAGE_ID);
-    console.log('User found', user);
-
-    const PAGE_ACCESS_TOKEN = user.pageAccessTokens[0]?.accessToken;
-    console.log('Access Token found', PAGE_ACCESS_TOKEN);
-
+    if (!pageId) {
+        console.error('Page ID is missing.');
+        return res.status(400).json({ error: 'Page ID is required.' });
+    }
 
     try {
-        const response = await axios.post(`https://graph.facebook.com/v19.0/${PAGE_ID}/messages?access_token=${PAGE_ACCESS_TOKEN}`, {
+        const user = await User.findOne({pageId: PAGE_ID});
+        if (!user) {
+            console.error('User not found for Page ID:', pageId);
+            return res.status(404).json({ error: 'User not found.' });
+        }
+        console.log('User found:', user);
+
+        const PAGE_ACCESS_TOKEN = user.pageAccessTokens[0]?.accessToken;
+        if (!PAGE_ACCESS_TOKEN) {
+            console.error('Access token not found for user:', user);
+            return res.status(404).json({ error: 'Access token not found.' });
+        }
+        console.log('Access Token found:', PAGE_ACCESS_TOKEN);
+
+
+
+        const response = await axios.post(`https://graph.facebook.com/v19.0/${PAGE_ID}/messages`,  {
             recipient: { id: senderPsid },
+            messaging_type: 'MESSAGE_TAG',
             message: { text: messageText },
-            messaging_type: 'RESPONSE',
             tag: 'CONFIRMED_EVENT_UPDATE'
+        }, {
+            headers: { Authorization: `Bearer ${PAGE_ACCESS_TOKEN}` }
         });
 
         console.log('Message sent:', response.data);
 
         const conversation = await Conversation.findById(conversationId);
         if (!conversation) {
+            console.error('Conversation not found with ID:', conversationId);
             return res.status(404).json({ error: 'Conversation not found.' });
         }
         console.log('msg in db ');
@@ -143,7 +162,8 @@ app.get('/conversations', passport.authenticate('jwt', { failureMessage: true })
         console.log('Working on collecting message for frontend');
 
 
-         const userId = req.user._id;
+
+        const userId = req.user._id;
 
         if (!req.user._id) {
             return res.status(401).json({ message: 'User not authenticated' });

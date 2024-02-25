@@ -14,7 +14,7 @@ const ChatPageONE = () => {
     const [messages, setMessages] = useState([]);
     const [customerProfile, setCustomerProfile] = useState(null);
 
-    const pollingInterval = 3000000;
+    const pollingInterval = 30000;
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -23,12 +23,12 @@ const ChatPageONE = () => {
             try {
 
 
-            //     const email = localStorage.getItem('email');
-            //    // console.log('// User email', user.email);
-            //     if (!email) {
-            //         console.log('No email found');
-            //         //return; // Redirect to login if no token is found
-            //     }
+                //     const email = localStorage.getItem('email');
+                //    // console.log('// User email', user.email);
+                //     if (!email) {
+                //         console.log('No email found');
+                //         //return; // Redirect to login if no token is found
+                //     }
                 const token = localStorage.getItem('token');
                 console.log('// User Token', token);
                 if (!token) {
@@ -64,9 +64,9 @@ const ChatPageONE = () => {
                         'Authorization': `Bearer ${token}`
                     }
                 });
-                console.log('// RESPONSE ', response);
-                console.log('// present user profile ', req.user);
-                
+                console.log('// RESPONSE ', response.data);
+                //console.log('// present user profile ', req.user);
+
 
                 setConversations(response.data);
                 console.log('// end of search ');
@@ -83,18 +83,36 @@ const ChatPageONE = () => {
         const intervalId = setInterval(fetchConversations, pollingInterval);
 
         return () => clearInterval(intervalId);
-    }, []);
+    }, [navigate]);
 
     const fetchMessages = useCallback(async () => {
         if (selectedConversation) {
             try {
-                console.log('Going to fetch msg in convo---in selected convo bloack');
+                console.log('Going to fetch selected msg in convo---in selected convo block');
 
-                const result = await axios.get(`http://localhost:5000/conversations/${selectedConversation._id}/messages`);
-                console.log('found msg in convo');
+                const result = await axios.get(`http://localhost:5000/user/conversations/${selectedConversation._id}`);
+                console.log('found msg in convo', selectedConversation._id, result);
 
-                setMessages(result.data.messages);
-            } catch (error) {
+                // const newMessages = result.data.messages || [];
+                // const lastFetchedMessage = messages[messages.length - 1];
+
+                // const newMessagesToAdd = newMessages.filter(message =>
+                //     !lastFetchedMessage || new Date(message.timestamp) > new Date(lastFetchedMessage.timestamp)
+                // );
+
+                // if (newMessagesToAdd.length > 0) {
+                //     setMessages([...messages, ...newMessagesToAdd]);
+                // }
+
+                const newMessages = result.data.messages || [];
+
+                setMessages(currentMessages => {
+                    const lastFetchedMessage = currentMessages[currentMessages.length - 1];
+                    const newMessagesToAdd = newMessages.filter(message =>
+                        !lastFetchedMessage || new Date(message.timestamp) > new Date(lastFetchedMessage.timestamp)
+                    );
+                    return [...currentMessages, ...newMessagesToAdd];
+            });} catch (error) {
                 console.error('Failed to fetch messages for conversation:', error);
             }
         }
@@ -109,10 +127,32 @@ const ChatPageONE = () => {
     }, [selectedConversation, fetchMessages]);
 
     const selectConversation = async (conversationId) => {
+
+        
         try {
-            const result = await axios(`http://localhost:5000/conversations/${conversationId}`);
+            console.log('Going for Convo');
+
+            const result = await axios.get(`http://localhost:5000/user/conversations/${conversationId}`);
+            console.log('Convo result', result);
+
             setSelectedConversation(result.data);
-            setMessages(result.data.messages);
+            console.log('Convo result data', result.data);
+
+            setMessages(result.data.messages || []);
+            console.log('Convo result t4ext', result.data.text);
+
+            console.log('GOING FOR PROFILE');
+
+            const PSID = result.data.customerId;
+            const PAGE = result.data.pageId;
+            console.log('PSID', PSID);
+            console.log('PAGE', PAGE);
+            // Fetch customer profile from your backend
+            const profileResult = await axios.get(`http://localhost:5000/user/customer/${PSID}/${PAGE}/profile`);
+            console.log('PROFILE FETCHED', profileResult);
+
+            setCustomerProfile(profileResult.data.profile);
+
         } catch (error) {
             console.error('Failed to select conversation:', error);
         }
@@ -123,7 +163,7 @@ const ChatPageONE = () => {
             try {
                 // Send message to the server
                 console.log('send msg to server');
-                const response = await axios.post('http://localhost:5000/send-message', {
+                const response = await axios.post('http://localhost:5000/user/chat/send-message', {
                     senderPsid: selectedConversation.customerId,
                     messageText: text,
                     conversationId: selectedConversation._id,
@@ -139,7 +179,7 @@ const ChatPageONE = () => {
                     text: text,
                     timestamp: response.data.sentAt,
                     messageId: response.data.messageId,
-                    senderId: 'PAGE_ID', // Replace with actual Page ID
+                    senderId: selectedConversation.pageId, 
                     recipientId: selectedConversation.customerId,
                     outgoing: true
                 };

@@ -25,7 +25,7 @@ const processWebhookEvent = async (webhook_event) => {
                 lastMessageAt: now,
                 messages: []
             });
-            console.log('this conv is new and got added in database');
+            console.log('this conv is new and got added in database -- YE NEW DB WALA HE');
         }else{
             // Add message to the conversation (new or existing) -- ye db me add krega
             conversation.messages.push({
@@ -34,6 +34,8 @@ const processWebhookEvent = async (webhook_event) => {
                 attachments: message.attachments,
                 sentAt: now
             });
+            console.log('YE ELSE WALA HE');
+
         }
         
 

@@ -11,7 +11,8 @@ const userSchema = new mongoose.Schema({
         pageId: String,
         accessToken: String,
         name: String,
-    }]
+    }],
+    pageId: String,
 });
 
 // const userSchema = new mongoose.Schema({

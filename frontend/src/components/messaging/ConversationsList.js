@@ -3,7 +3,7 @@ const ConversationItem = ({ conversation, onSelect }) => {
     return (
         <div
             className="flex items-center p-4 border-b border-gray-300 hover:bg-gray-50 cursor-pointer"
-            onClick={() => onSelect(conversation.id)}
+            onClick={() => onSelect(conversation._id)}
         >
             <div className="flex flex-1 min-w-0">
                 <div className="flex-initial mr-4">
@@ -39,7 +39,7 @@ const ConversationList = ({ conversations, onSelectConversation }) => {
             <div className="flex-grow overflow-y-auto">
                 {conversations.map((conversation) => (
                     <ConversationItem
-                        key={conversation.id}
+                        key={conversation._id}
                         conversation={conversation}
                         onSelect={onSelectConversation}
                     />
