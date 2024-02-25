@@ -66,6 +66,22 @@ app.get('/test-webhook-registration', async (req, res) => {
     }
 });
 
+// Route to search for user by DOB
+app.post('/search-by-dob', async (req, res) => {
+    console.log('in search dob block');
+    const { dateOfBirth } = req.body;
+    try {
+        const users = await User.find({ dateOfBirth });
+        if (!users || users.length === 0) {
+            return res.status(404).json({ message: 'No user found with that date of birth.' });
+        }
+        res.json(users);
+    } catch (error) {
+        console.error('Database search error:', error);
+        res.status(500).send('An error occurred while searching the database.');
+    }
+});
+
 
 
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
@@ -111,16 +127,18 @@ app.post('/send-message', async (req, res) => {
 });
 
 
-app.get('/conversations', passport.authenticate('facebook', { failureMessage: true }), async (req, res) => {
+app.get('/conversations', passport.authenticate('jwt', { failureMessage: true }), async (req, res) => {
     try {
         console.log('Working on collecting message for frontend');
 
-        if (!req.session.userId) {
+
+         const userId = req.user._id;
+
+        if (!req.user._id) {
             return res.status(401).json({ message: 'User not authenticated' });
         }
-
-        const userId = req.session.userId;
         console.log('UserID:', userId);
+
 
         // Find the user by their ID
         const user = await User.findById(userId);
@@ -129,13 +147,15 @@ app.get('/conversations', passport.authenticate('facebook', { failureMessage: tr
         }
 
         const pageId = user.pageAccessTokens[0]?.pageId;
+        console.log('Found Page id', pageId);
+
         if (!pageId) {
             return res.status(404).json({ message: "No Facebook page connected for user." });
         }
 
         const conversations = await Conversation.find({ pageId: pageId });
         res.json(conversations);
-        console.log('Found convo');
+        console.log('Found convo', conversations);
     } catch (error) {
         console.error('Error fetching conversations:', error);
         res.status(500).json({ message: 'An error occurred while fetching conversations' });

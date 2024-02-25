@@ -5,6 +5,7 @@ const Signup = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [dob, setDob] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
     const [error, setError] = useState('');
 
@@ -13,7 +14,7 @@ const Signup = () => {
 
         try {
 
-            const response = await axios.post('http://localhost:5000/signup', { email, password });
+            const response = await axios.post('http://localhost:5000/signup', { email, password, dob });
 
             if (response.data.success) {
                 // Store the token or user ID in local storage
@@ -68,6 +69,18 @@ const Signup = () => {
                             id="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                        />
+                    </div>
+                    <div className="mb-6">
+                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+                            dateOfBirth
+                        </label>
+                        <input
+                            type="date"
+                            id="dob"
+                            value={dob}
+                            onChange={(e) => setDob(e.target.value)}
                             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
                         />
                     </div>

@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
     displayName: String,
     email: { type: String, unique: true, sparse: true },
     password: { type: String, sparse: true },
+    dateOfBirth: Date,
     pageAccessTokens: [{
         pageId: String,
         accessToken: String,

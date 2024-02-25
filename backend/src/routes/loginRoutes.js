@@ -32,7 +32,7 @@ loginRoutes.post('/login', async (req, res) => {
         jwt.sign(
             payload,
             process.env.JWT_SECRET,
-            { expiresIn: 7200 },
+            { expiresIn: '10d' },
             (err, token) => {
                 if (err) throw err;
                 res.json({
@@ -49,10 +49,10 @@ loginRoutes.post('/login', async (req, res) => {
 
 
 loginRoutes.post('/signup', async (req, res) => {
-    const { name, email, password } = req.body;
+    const { name, email, password, dob } = req.body;
 
     try {
-        
+
         console.log('// User Signup Begins');
 
         let user = await User.findOne({ email });
@@ -64,7 +64,9 @@ loginRoutes.post('/signup', async (req, res) => {
         user = new User({
             displayName: name,
             email,
-            password
+            password,
+            dob
+
         });
 
         await user.save();
@@ -72,11 +74,13 @@ loginRoutes.post('/signup', async (req, res) => {
 
         const payload = {
             user: {
-                id: user.id
+                id: user.id,
+                email: user.email,
+                dob: user.dob
             }
         };
 
-        jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '5h' }, (err, token) => {
+        jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '10d' }, (err, token) => {
             if (err) throw err;
             res.status(201).json({ success: true, token });
         });

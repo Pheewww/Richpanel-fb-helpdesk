@@ -5,6 +5,7 @@ import Conversation from '../models/Conversation.js';
 const processWebhookEvent = async (webhook_event) => {
     const sender_psid = webhook_event.sender.id;
     const message = webhook_event.message;
+    const PageID = webhook_event.recipient.id;
 
     try {
         // Find the most recent conversation in the database
@@ -19,7 +20,7 @@ const processWebhookEvent = async (webhook_event) => {
         if (!conversation || now - conversation.lastMessageAt > 24 * 60 * 60 * 1000) {
             // Start a new conversation - yaha pe new initialize hua h
             conversation = new Conversation({
-                pageId: process.env.PAGE_ID,
+                pageId: PageID,
                 customerId: sender_psid,
                 lastMessageAt: now,
                 messages: []
