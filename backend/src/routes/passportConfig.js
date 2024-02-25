@@ -60,14 +60,7 @@ const configurePassport = (passport) => {
 
             console.log('Update New User ACCESS TOKENS ');
 
-            // if (pagesData.data && pagesData.data.length > 0) {
-            //     const firstPage = pagesData.data[0]; // Assuming you want to store the first page's data
-            //     user.pageId = firstPage.id;
-            //     user.accessToken = firstPage.access_token;
-            //     user.name = firstPage.name;
-            // } else {
-            //     console.log('Data from Graph API is not received');
-            // }
+          
             if (pagesData.data) {
                 user.pageAccessTokens = pagesData.data.map(page => ({
                     pageId: page.id,
@@ -88,34 +81,6 @@ const configurePassport = (passport) => {
 
 
             await user.save();
-
-
-            // user.pageAccessTokens.forEach(async (page) => {
-            //     const postData = {
-            //         pageId: page.pageId,
-            //         accessToken: page.accessToken,
-            //         pageName: page.name,
-            //         facebookId: profile.id,
-            //         displayName: profile.displayName,
-            //     };
-
-            //     try {
-            //         const response = await fetch('https://www.example.com/user/facebook-page', {
-            //             method: 'POST',
-            //             headers: {
-            //                 'Content-Type': 'application/json',
-
-            //             },
-            //             body: JSON.stringify(postData),
-            //         });
-
-            //         const responseData = await response.json();
-            //         console.log('POST to /user/facebook-page succeeded:', responseData);
-            //     } catch (error) {
-            //         console.error('Error posting to /user/facebook-page:', error);
-            //     }
-            // });
-
 
 
             console.log('user', user);

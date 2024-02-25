@@ -9,17 +9,16 @@ function Pages() {
     useEffect(() => {
 
         console.log('// going for page search');
-        // Add your token retrieval logic here
 
         
         const token = localStorage.getItem('token');
         console.log('// User Token', token);
 
         if (!token) {
-            navigate('/'); // Redirect to login if no token is found
+            navigate('/'); 
         }
 
-        axios.get('http://localhost:5000/user/facebook-page', {
+        axios.get(`${process.env.REACT_APP_API_URL}/user/facebook-page`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -42,14 +41,14 @@ function Pages() {
         console.log('// going for page disconnect');
         const pageId = ''; 
 
-        axios.post('/user/facebook-page/disconnect', { pageId }, {
+        axios.post(`${process.env.REACT_APP_API_URL}/user/facebook-page/disconnect`, { pageId }, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
         })
             .then(response => {
-                console.log(response.data); // The JSON is automatically parsed
-                setPageName('No page connected');
+                console.log(response.data); 
+                setPageName('No page connected. Did You Connect Ur FB Page');
             })
             .catch(error => {
                 console.error('Error disconnecting Facebook page:', error);

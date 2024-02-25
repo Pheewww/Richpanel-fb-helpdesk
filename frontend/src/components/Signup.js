@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
+
 const Signup = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -14,7 +15,7 @@ const Signup = () => {
 
         try {
 
-            const response = await axios.post('http://localhost:5000/signup', { email, password, dob });
+            const response = await axios.post(`${process.env.REACT_APP_API_URL}/signup`, { email, password, dob });
 
             if (response.data.success) {
                 // Store the token or user ID in local storage
@@ -32,9 +33,9 @@ const Signup = () => {
     };
 
     return (
-        <div className="flex justify-center items-center h-screen bg-blue-100">
+        <div className="flex justify-center items-center h-screen bg-blue-700">
             <div className="bg-white p-8 rounded-lg shadow-md w-96">
-                <h2 className="text-2xl font-bold mb-2 text-gray-800">Create Account</h2>
+                <h2 className="text-2xl font-bold mb-2 justify-between text-gray-800">Create Account</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
@@ -103,7 +104,7 @@ const Signup = () => {
                         Sign Up
                     </button>
                     <div className="text-center">
-                        <a href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+                        <a href="/" className="font-medium text-indigo-600 hover:text-indigo-500">
                             Already have an account? Login
                         </a>
                     </div>

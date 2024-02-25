@@ -10,6 +10,7 @@ import PropTypes from 'prop-types';
 
 const ChatPageONE = () => {
     const [conversations, setConversations] = useState([]);
+    const [conversationsProfile, setConversationsProfile] = useState([]);
     const [selectedConversation, setSelectedConversation] = useState(null);
     const [messages, setMessages] = useState([]);
     const [customerProfile, setCustomerProfile] = useState(null);
@@ -59,16 +60,21 @@ const ChatPageONE = () => {
 
                 //     });
 
-                const response = await axios.get('http://localhost:5000/conversations', {
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}/conversations`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 });
                 console.log('// RESPONSE ', response.data);
-                //console.log('// present user profile ', req.user);
 
 
-                setConversations(response.data);
+                if (Array.isArray(response.data) && response.data.length > 0) {
+                    setConversations(response.data);
+                } else {
+                    
+                    console.log('No conversations found or data format is incorrect');
+                    setConversations([]); 
+                }
                 console.log('// end of search ');
 
             } catch (error) {
@@ -90,7 +96,7 @@ const ChatPageONE = () => {
             try {
                 console.log('Going to fetch selected msg in convo---in selected convo block');
 
-                const result = await axios.get(`http://localhost:5000/user/conversations/${selectedConversation._id}`);
+                const result = await axios.get(`${process.env.REACT_APP_API_URL}/user/conversations/${selectedConversation._id}`);
                 console.log('found msg in convo', selectedConversation._id, result);
 
                 // const newMessages = result.data.messages || [];
@@ -105,14 +111,19 @@ const ChatPageONE = () => {
                 // }
 
                 const newMessages = result.data.messages || [];
+                console.log('NEW MESSAGES', newMessages);
+
 
                 setMessages(currentMessages => {
                     const lastFetchedMessage = currentMessages[currentMessages.length - 1];
+                    console.log('LAST FETCHED MESSAGE', lastFetchedMessage);
                     const newMessagesToAdd = newMessages.filter(message =>
                         !lastFetchedMessage || new Date(message.timestamp) > new Date(lastFetchedMessage.timestamp)
                     );
+                    console.log('NEW MESSAGES TO ADD', newMessagesToAdd);
                     return [...currentMessages, ...newMessagesToAdd];
-            });} catch (error) {
+                });
+            } catch (error) {
                 console.error('Failed to fetch messages for conversation:', error);
             }
         }
@@ -128,11 +139,11 @@ const ChatPageONE = () => {
 
     const selectConversation = async (conversationId) => {
 
-        
+
         try {
             console.log('Going for Convo');
 
-            const result = await axios.get(`http://localhost:5000/user/conversations/${conversationId}`);
+            const result = await axios.get(`${process.env.REACT_APP_API_URL}/user/conversations/${conversationId}`);
             console.log('Convo result', result);
 
             setSelectedConversation(result.data);
@@ -148,10 +159,11 @@ const ChatPageONE = () => {
             console.log('PSID', PSID);
             console.log('PAGE', PAGE);
             // Fetch customer profile from your backend
-            const profileResult = await axios.get(`http://localhost:5000/user/customer/${PSID}/${PAGE}/profile`);
+            const profileResult = await axios.get(`${process.env.REACT_APP_API_URL}/user/customer/${PSID}/${PAGE}/profile`);
             console.log('PROFILE FETCHED', profileResult);
 
             setCustomerProfile(profileResult.data.profile);
+            setConversationsProfile(profileResult.data.profile);
 
         } catch (error) {
             console.error('Failed to select conversation:', error);
@@ -161,9 +173,8 @@ const ChatPageONE = () => {
     const sendMessage = async (text) => {
         if (selectedConversation) {
             try {
-                // Send message to the server
                 console.log('send msg to server');
-                const response = await axios.post('http://localhost:5000/user/chat/send-message', {
+                const response = await axios.post(`${process.env.REACT_APP_API_URL}/user/chat/send-message`, {
                     senderPsid: selectedConversation.customerId,
                     messageText: text,
                     conversationId: selectedConversation._id,
@@ -179,7 +190,7 @@ const ChatPageONE = () => {
                     text: text,
                     timestamp: response.data.sentAt,
                     messageId: response.data.messageId,
-                    senderId: selectedConversation.pageId, 
+                    senderId: selectedConversation.pageId,
                     recipientId: selectedConversation.customerId,
                     outgoing: true
                 };
@@ -193,7 +204,7 @@ const ChatPageONE = () => {
     return (
         <div className="flex">
             <ConversationList conversations={conversations} onSelectConversation={selectConversation} />
-            <MessagePanel messages={messages} onSendMessage={sendMessage} />
+            <MessagePanel messages={messages} onSendMessage={sendMessage} profile={customerProfile} />
             {customerProfile && <CustomerProfile profile={customerProfile} />}
         </div>
     );

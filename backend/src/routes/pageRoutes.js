@@ -28,7 +28,6 @@ pageRoutes.get('/user/facebook-page', passport.authenticate('jwt', { session: fa
 
         console.log('// Page found ');
 
-        // Send back the name of the first connected page
         res.json({ pageName: user.pageAccessTokens[0].name });
     } catch (error) {
         console.error('Error fetching Facebook page:', error);
@@ -41,9 +40,7 @@ pageRoutes.get('/user/conversations/:conversationId', async (req, res) => {
 
 
 
-    // const user1 = req.user;
-    // console.log('// going for MESSAGE PICKUPS, also user ->', user1);
-
+    
     const { conversationId } = req.params;
     console.log('// Convo ID-->', conversationId);
 
@@ -76,7 +73,6 @@ pageRoutes.get('/user/customer/:PSID/:PAGE/profile', async (req, res) => {
         console.log('PROFILE FETCHED', profileResponse);
         const profileData = profileResponse.data;
 
-        // Respond with the fetched profile data
         res.json({
             success: true,
             profile: {

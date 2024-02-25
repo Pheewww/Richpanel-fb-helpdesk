@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import axios from 'axios';
-import {  handlePostback, processWebhookEvent } from '../utils/messageHandlers.js'; // Assuming these are defined in a separate file
+import { processWebhookEvent } from '../utils/messageHandlers.js'; 
 
 const webhookRoutes = express.Router();
 
@@ -24,20 +24,7 @@ webhookRoutes.get('/webhook', (req, res) => {
     }
 });
 
-// webhookRoutes.post('/webhook', (req, res) => {
-//     const VERIFY_TOKEN = "happy";
-//     const mode = req.query['hub.mode'];
-//     const token = req.query['hub.verify_token'];
-//     const challenge = req.query['hub.challenge'];
-//     if (mode && token) {
-//         if (mode === 'subscribe' && token === VERIFY_TOKEN) {
-//             console.log('WEBHOOK_VERIFIED111');
-//             res.status(200).send(challenge);
-//         } else {
-//             res.sendStatus(403);
-//         }
-//     }
-// });
+
 
 webhookRoutes.post('/webhook', (req, res) => {
     const body = req.body;
@@ -53,9 +40,7 @@ webhookRoutes.post('/webhook', (req, res) => {
                 console.log('Sender PSID: ' + webhook_event.sender.id);
                 processWebhookEvent(webhook_event)
             }
-            else if (webhook_event.postback) {
-                handlePostback(webhook_event.sender.id, webhook_event.postback);
-            } else {
+            else {
                 console.log('Sender ID not found or event type not handled', webhook_event);
             }
         });
