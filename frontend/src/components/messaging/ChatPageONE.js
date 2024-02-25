@@ -14,7 +14,7 @@ const ChatPageONE = () => {
     const [messages, setMessages] = useState([]);
     const [customerProfile, setCustomerProfile] = useState(null);
 
-    const pollingInterval = 30000;
+    const pollingInterval = 3000000;
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -84,7 +84,7 @@ const ChatPageONE = () => {
     const fetchMessages = useCallback(async () => {
         if (selectedConversation) {
             try {
-                console.log('Going to fetch msg in convo');
+                console.log('Going to fetch msg in convo---in selected convo bloack');
 
                 const result = await axios.get(`http://localhost:5000/conversations/${selectedConversation._id}/messages`);
                 console.log('found msg in convo');

@@ -41,6 +41,7 @@ webhookRoutes.get('/webhook', (req, res) => {
 
 webhookRoutes.post('/webhook', (req, res) => {
     const body = req.body;
+    console.log('WEBHOOK BODY', body);
 
     if (body.object === 'page') {
         body.entry.forEach((entry) => {

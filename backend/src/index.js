@@ -90,7 +90,7 @@ app.post('/send-message', async (req, res) => {
     const { senderPsid, messageText, conversationId } = req.body;
 
     try {
-        const response = await axios.post(`https://graph.facebook.com/v19.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`, {
+        const response = await axios.post(`https://graph.facebook.com/v19.0/${PAGE_ID}/messages?access_token=${PAGE_ACCESS_TOKEN}`, {
             recipient: { id: senderPsid },
             message: { text: messageText },
             messaging_type: 'RESPONSE',
