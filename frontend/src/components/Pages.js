@@ -17,8 +17,8 @@ function Pages() {
         if (!token) {
             navigate('/'); 
         }
-
-        axios.get(`${process.env.REACT_APP_API_URL}/user/facebook-page`, {
+        const apiUrl = process.env.REACT_APP_API_URL || 'https://richpanel-fb-helpdesk-gwbm.onrender.com';
+        axios.get(`${apiUrl}/user/facebook-page`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }

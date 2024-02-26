@@ -30,7 +30,7 @@ router.get('/auth/facebook/callback',
             res.redirect(process.env.POST_LOGIN_REDIRECT_URL); // Note: Corrected to use process.env
         } catch (error) {
             console.error('Error during webhook registration:', error);
-            res.redirect('/error');
+            res.redirect('/login');
         }
     }
 );

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios'; 
+import axios from 'axios';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -14,7 +14,8 @@ const Login = () => {
         console.log('// LOGIN BEGINS');
 
         try {
-            const response = await axios.post(`${process.env.REACT_APP_API_URL}/login`, { email, password });
+            const apiUrl = process.env.REACT_APP_API_URL || 'https://richpanel-fb-helpdesk-gwbm.onrender.com';
+            const response = await axios.post(`${apiUrl}/login`, { email, password });
 
             if (response.data.success) {
                 // Store the token / user ID in local storage 
@@ -73,18 +74,18 @@ const Login = () => {
                             className="ml-2 leading-tight"
                         />
                     </div>
-                        <button
-                            type="submit"
-                            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                        >
-                            Login
-                        </button>
+                    <button
+                        type="submit"
+                        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                        Login
+                    </button>
                     <div className="flex items-center mt-6 justify-center ">
 
                         <a className="inline-block align-baseline justify-center font-bold text-sm text-blue-500 hover:text-blue-800" href="/signup">
                             New to MyApp? Sign Up
                         </a>
-                       
+
                     </div>
                     {error && <p className="text-red-500 text-xs italic mt-4">{error}</p>}
                 </form>

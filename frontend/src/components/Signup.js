@@ -14,8 +14,8 @@ const Signup = () => {
         e.preventDefault();
 
         try {
-
-            const response = await axios.post(`${process.env.REACT_APP_API_URL}/signup`, { email, password, dob });
+            const apiUrl = process.env.REACT_APP_API_URL || 'https://richpanel-fb-helpdesk-gwbm.onrender.com';
+            const response = await axios.post(`${apiUrl}/signup`, { email, password, dob });
 
             if (response.data.success) {
                 // Store the token or user ID in local storage
