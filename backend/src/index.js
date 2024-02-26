@@ -13,6 +13,7 @@ import User from './models/User.js';
 import Conversation from './models/Conversation.js';
 import cors from "cors";
 import dotenv from 'dotenv';
+import bodyParser from 'body-parser';
 dotenv.config();
 // mongoose.connect('mongodb+srv://umang:0bbK5XsETIXE1VVi@cluster01.2gtklha.mongodb.net?retryWrites=true&w=majority', {
 //     useNewUrlParser: true,
