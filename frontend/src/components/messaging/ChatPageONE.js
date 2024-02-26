@@ -37,8 +37,8 @@ const ChatPageONE = () => {
 
                 console.log('Going to fetch convo');
               
-                //const apiUrl = process.env.REACT_APP_API_URL || 'https://richpanel-fb-helpdesk-gwbm.onrender.com';
-                const response = await axios.get('http://localhost:5000/conversations', {
+                const apiUrl = process.env.REACT_APP_API_URL || 'https://richpanel-fb-helpdesk-gwbm.onrender.com';
+                const response = await axios.get(`${apiUrl}/conversations`, {
                     headers: {
                         'authorization': `${token}`,
                     }
@@ -75,8 +75,8 @@ const ChatPageONE = () => {
         if (selectedConversation) {
             try {
                 console.log('Going to fetch selected msg in convo---in selected convo block');
-                //const apiUrl = process.env.REACT_APP_API_URL || 'https://richpanel-fb-helpdesk-gwbm.onrender.com';
-                const result = await axios.get(`http://localhost:5000/user/conversations/${selectedConversation._id}`);
+                const apiUrl = process.env.REACT_APP_API_URL || 'https://richpanel-fb-helpdesk-gwbm.onrender.com';
+                const result = await axios.get(`${apiUrl}/user/conversations/${selectedConversation._id}`);
                 console.log('found msg in convo', selectedConversation._id, result);
 
                 const newMessages = result.data.messages || [];
@@ -111,8 +111,8 @@ const ChatPageONE = () => {
 
         try {
             console.log('Going for Convo');
-           // const apiUrl = process.env.REACT_APP_API_URL || 'https://richpanel-fb-helpdesk-gwbm.onrender.com';
-            const result = await axios.get(`http://localhost:5000/user/conversations/${conversationId}`);
+            const apiUrl = process.env.REACT_APP_API_URL || 'https://richpanel-fb-helpdesk-gwbm.onrender.com';
+            const result = await axios.get(`${apiUrl}/user/conversations/${conversationId}`);
             console.log('Convo result', result);
 
             setSelectedConversation(result.data);
@@ -129,7 +129,7 @@ const ChatPageONE = () => {
             console.log('PAGE', PAGE);
             // Fetch customer profile from your backend
 
-            const profileResult = await axios.get(`http://localhost:5000/user/customer/${PSID}/${PAGE}/profile`);
+            const profileResult = await axios.get(`${apiUrl}/user/customer/${PSID}/${PAGE}/profile`);
             console.log('PROFILE FETCHED', profileResult);
 
             setCustomerProfile(profileResult.data.profile);
@@ -144,8 +144,8 @@ const ChatPageONE = () => {
         if (selectedConversation) {
             try {
                 console.log('send msg to server');
-               // const apiUrl = process.env.REACT_APP_API_URL || 'https://richpanel-fb-helpdesk-gwbm.onrender.com';
-                const response = await axios.post(`http://localhost:5000/user/chat/send-message`, {
+               const apiUrl = process.env.REACT_APP_API_URL || 'https://richpanel-fb-helpdesk-gwbm.onrender.com';
+                const response = await axios.post(`${apiUrl}/user/chat/send-message`, {
                     senderPsid: selectedConversation.customerId,
                     messageText: text,
                     conversationId: selectedConversation._id,

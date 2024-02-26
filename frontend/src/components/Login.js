@@ -14,8 +14,8 @@ const Login = () => {
         console.log('// LOGIN BEGINS');
 
         try {
-            //const apiUrl = process.env.REACT_APP_API_URL || 'https://richpanel-fb-helpdesk-gwbm.onrender.com';
-            const response = await axios.post('http://localhost:5000/login', { email, password });
+            const apiUrl = process.env.REACT_APP_API_URL || 'https://richpanel-fb-helpdesk-gwbm.onrender.com';
+            const response = await axios.post(`${apiUrl}/login`, { email, password });
             console.log('// LOGIN RESPOONSE', response.data);
 
             if (response.data.success) {

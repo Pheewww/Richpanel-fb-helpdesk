@@ -118,28 +118,28 @@ pageRoutes.get('/user/customer/:PSID/:PAGE/profile', async (req, res) => {
 
 
 
-pageRoutes.post('/api/user/facebook-page/disconnect', async (req, res) => {
-    console.log('// going for page disconect');
-    const userId = req.user._id;
-    const { pageId } = req.body;
+// pageRoutes.post('/api/user/facebook-page/disconnect', async (req, res) => {
+//     console.log('// going for page disconect');
+//     const userId = req.user._id;
+//     const { pageId } = req.body;
 
-    try {
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).json({ message: "User not found." });
-        }
-        console.log(' // Filter out the disconnected page ');
+//     try {
+//         const user = await User.findById(userId);
+//         if (!user) {
+//             return res.status(404).json({ message: "User not found." });
+//         }
+//         console.log(' // Filter out the disconnected page ');
 
-        user.pageAccessTokens = user.pageAccessTokens.filter(page => page.pageId !== pageId);
+//         user.pageAccessTokens = user.pageAccessTokens.filter(page => page.pageId !== pageId);
 
-        await user.save();
+//         await user.save();
 
-        res.json({ message: 'Facebook page disconnected successfully' });
-    } catch (error) {
-        console.error('Error disconnecting Facebook page:', error);
-        res.status(500).json({ message: 'An error occurred while disconnecting the Facebook page' });
-    }
-});
+//         res.json({ message: 'Facebook page disconnected successfully' });
+//     } catch (error) {
+//         console.error('Error disconnecting Facebook page:', error);
+//         res.status(500).json({ message: 'An error occurred while disconnecting the Facebook page' });
+//     }
+// });
 
 
 export default pageRoutes;

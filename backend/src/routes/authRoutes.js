@@ -10,7 +10,7 @@ router.get('/auth/facebook',
 );
 
 router.get('/auth/facebook/callback',
-    passport.authenticate('facebook', { failureRedirect: '/login' }),
+    passport.authenticate('facebook', { failureRedirect: 'https://richpanel-fb-helpdesk-1.onrender.com/pages-chat' }),
     async (req, res) => {
         try {
             const user = await User.findOne({ facebookId: req.user.facebookId });

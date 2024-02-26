@@ -16,20 +16,20 @@ import verifyToken from './routes/authConfig.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
-mongoose.connect('mongodb+srv://umang:0bbK5XsETIXE1VVi@cluster01.2gtklha.mongodb.net?retryWrites=true&w=majority', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
-    .then(() => console.log('MongoDB Connected'))
-    .catch(err => console.error('MongoDB connection FAILED', err));
+// mongoose.connect('mongodb+srv://umang:0bbK5XsETIXE1VVi@cluster01.2gtklha.mongodb.net?retryWrites=true&w=majority', {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true
+// })
+//     .then(() => console.log('MongoDB Connected'))
+//     .catch(err => console.error('MongoDB connection FAILED', err));
 
-// try {
-//     const connectionInstance = await mongoose.connect(`${process.env.MONGODB_URI}`)
-//     console.log(`\n MongoDB connected !! DB HOST: ${connectionInstance.connection.host}`);
-// } catch (error) {
-//     console.log("MONGODB connection FAILED ", error);
-//     process.exit(1)
-// }
+try {
+    const connectionInstance = await mongoose.connect(`${process.env.MONGODB_URI}`)
+    console.log(`\n MongoDB connected !! DB HOST: ${connectionInstance.connection.host}`);
+} catch (error) {
+    console.log("MONGODB connection FAILED ", error);
+    process.exit(1)
+}
 
 
 const app = express();
@@ -179,7 +179,7 @@ app.post('/data-deletion', async (req, res) => {
         await User.deleteOne({ facebookId: userId });
         await Conversation.deleteMany({ customerId: userId });
 
-        const statusUrl = `https://richpanel-fb-helpdesk-1.onrender.com/deletion?id=${userId}`;
+        const statusUrl = `https://richpanel-fb-helpdesk-1.onrender.com/connect-page?id=${userId}`;
         const confirmationCode = userId;
 
         res.json({
