@@ -23,24 +23,27 @@ loginRoutes.post('/login', async (req, res) => {
         }
         console.log('// Pwd Done');
 
-        const payload = {
-            id: user._id,
-            displayName: user.displayName,
-            email: user.email
-        };
 
+
+
+
+        // Simplified token generation
         jwt.sign(
-            payload,
+            { id: user._id, email: user.email },
             process.env.JWT_SECRET,
             { expiresIn: '10d' },
+
             (err, token) => {
-                if (err) throw err;
-                res.json({
-                    success: true,
-                    token: 'Bearer ' + token
-                });
+                if (err) {
+                    console.error("Error generating token:", err);
+                    return res.status(500).json({ message: "Error generating token" });
+                }
+                console.log('// IN JWT SIGN BLOCK OF LOGIN ');
+
+                res.json({ success: true, token: 'Bearer ' + token });
             }
         );
+
     } catch (error) {
         console.error('Login error:', error);
         res.status(500).json({ message: 'Server error' });
@@ -72,22 +75,9 @@ loginRoutes.post('/signup', async (req, res) => {
         await user.save();
         console.log('// User added in DB');
 
-        const payload = {
-            user: {
-                id: user.id,
-                email: user.email,
-                dob: user.dob
-            }
-        };
-
-        jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '10d' }, (err, token) => {
-            if (err) throw err;
-            res.status(201).json({ success: true, token });
-        });
-        console.log('// User given the JWT');
-
+        res.status(201).json({ message: 'User successfully registered. Please log in.' });
     } catch (error) {
-        console.error(error.message);
+        console.error('Signup error:', error);
         res.status(500).send('Server error');
     }
 });

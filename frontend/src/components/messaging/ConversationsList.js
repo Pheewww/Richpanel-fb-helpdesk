@@ -38,9 +38,10 @@ const ConversationItem = ({ conversation, onSelect }) => (
             <input type="checkbox" className="conversation-checkbox" />
         </div>
         <div className="conversation-content">
-            <div className="conversation-title">{conversation.customerName}</div>
-            <div className="conversation-last-message">{conversation.lastMessage}</div>
-            <div className="conversation-timestamp">{conversation.time}</div>
+            <div className="conversation-title">{conversation.customerName} || Name</div>
+            <div className="conversation-title">{conversation.source} || Facebook DM</div>
+            <div className="conversation-last-message">{conversation.lastMessage} || last meassage - good</div>
+            <div className="conversation-timestamp">{conversation.time} 10:30</div>
         </div>
     </div>
 );
@@ -62,23 +63,23 @@ const ConversationList = ({ conversations, onSelectConversation }) => (
     </div>
 );
 
-// The main chat interface component
-const ChatInterface = () => {
-    const handleSelectConversation = (id) => {
-        console.log('Selected conversation ID:', id);
-        // Logic to display messages or perform other actions
-    };
+// // The main chat interface component
+// const ChatInterface = () => {
+//     const handleSelectConversation = (id) => {
+//         console.log('Selected conversation ID:', id);
+//         // Logic to display messages or perform other actions
+//     };
 
-    return (
-        <div className="chat-interface">
-            <Sidebar />
-            <ConversationList
-                conversations={PlaceholderConversations}
-                onSelectConversation={handleSelectConversation}
-            />
-            {/* Message panel or other components can be added here */}
-        </div>
-    );
-};
+//     return (
+//         <div className="chat-interface">
+//             <Sidebar />
+//             <ConversationList
+//                 conversations={PlaceholderConversations}
+//                 onSelectConversation={handleSelectConversation}
+//             />
+//             {/* Message panel or other components can be added here */}
+//         </div>
+//     );
+// };
 
-export default ChatInterface;
+export default ConversationList;

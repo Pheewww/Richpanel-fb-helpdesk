@@ -12,23 +12,24 @@ import pageRoutes from './routes/pageRoutes.js'
 import User from './models/User.js';
 import Conversation from './models/Conversation.js';
 import cors from "cors";
+import verifyToken from './routes/authConfig.js';
 import dotenv from 'dotenv';
-import bodyParser from 'body-parser';
 dotenv.config();
-// mongoose.connect('mongodb+srv://umang:0bbK5XsETIXE1VVi@cluster01.2gtklha.mongodb.net?retryWrites=true&w=majority', {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true
-// })
-//     .then(() => console.log('MongoDB Connected'))
-//     .catch(err => console.error('MongoDB connection FAILED', err));
 
-try {
-    const connectionInstance = await mongoose.connect(`${process.env.MONGODB_URI}`)
-    console.log(`\n MongoDB connected !! DB HOST: ${connectionInstance.connection.host}`);
-} catch (error) {
-    console.log("MONGODB connection FAILED ", error);
-    process.exit(1)
-}
+mongoose.connect('mongodb+srv://umang:0bbK5XsETIXE1VVi@cluster01.2gtklha.mongodb.net?retryWrites=true&w=majority', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+    .then(() => console.log('MongoDB Connected'))
+    .catch(err => console.error('MongoDB connection FAILED', err));
+
+// try {
+//     const connectionInstance = await mongoose.connect(`${process.env.MONGODB_URI}`)
+//     console.log(`\n MongoDB connected !! DB HOST: ${connectionInstance.connection.host}`);
+// } catch (error) {
+//     console.log("MONGODB connection FAILED ", error);
+//     process.exit(1)
+// }
 
 
 const app = express();
@@ -48,8 +49,6 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 configurePassport(passport);
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
 
 
 
@@ -67,21 +66,21 @@ app.post('/user/chat/send-message', async (req, res) => {
     const PAGE_ID = pageId;
     if (!pageId) {
         console.error('Page ID is missing.');
-        return res.status(400).json({ error: 'Page ID is required.' });
+        res.status(400).json({ error: 'Page ID is required.' });
     }
 
     try {
         const user = await User.findOne({ pageId: PAGE_ID });
         if (!user) {
             console.error('User not found for Page ID:', pageId);
-            return res.status(404).json({ error: 'User not found.' });
+            res.status(404).json({ error: 'User not found.' });
         }
         console.log('User found:', user);
 
         const PAGE_ACCESS_TOKEN = user.pageAccessTokens[0]?.accessToken;
         if (!PAGE_ACCESS_TOKEN) {
             console.error('Access token not found for user:', user);
-            return res.status(404).json({ error: 'Access token not found.' });
+            res.status(404).json({ error: 'Access token not found.' });
         }
         console.log('Access Token found:', PAGE_ACCESS_TOKEN);
 
@@ -101,7 +100,7 @@ app.post('/user/chat/send-message', async (req, res) => {
         const conversation = await Conversation.findById(conversationId);
         if (!conversation) {
             console.error('Conversation not found with ID:', conversationId);
-            return res.status(404).json({ error: 'Conversation not found.' });
+            res.status(404).json({ error: 'Conversation not found.' });
         }
         console.log('msg in db ');
 
@@ -127,16 +126,16 @@ app.post('/user/chat/send-message', async (req, res) => {
 });
 
 
-app.get('/conversations', passport.authenticate('jwt', { failureMessage: true }), async (req, res) => {
+app.get('/conversations',  verifyToken, async (req, res) => {
     try {
         console.log('Working on collecting message for frontend');
 
 
 
-        const userId = req.user._id;
+        const userId = req.user.id;
 
-        if (!req.user._id) {
-            return res.status(401).json({ message: 'User not authenticated' });
+        if (!req.user.id) {
+          return  res.status(401).json({ message: 'User not authenticated' });
         }
         console.log('UserID:', userId);
 
@@ -150,12 +149,12 @@ app.get('/conversations', passport.authenticate('jwt', { failureMessage: true })
         console.log('Found Page id', pageId);
 
         if (!pageId) {
-            return res.status(404).json({ message: "No Facebook page connected for user." });
+           return res.status(404).json({ message: "No Facebook page connected for user." });
         }
 
         const conversations = await Conversation.find({ pageId: pageId });
-        res.json(conversations);
-        console.log('Found convo', conversations);
+        console.log('conversations', conversations);
+        return res.json(conversations);
     } catch (error) {
         console.error('Error fetching conversations:', error);
         res.status(500).json({ message: 'An error occurred while fetching conversations' });
@@ -166,17 +165,17 @@ app.get('/conversations', passport.authenticate('jwt', { failureMessage: true })
 
 
 
+
 app.post('/data-deletion', async (req, res) => {
     const signedRequest = req.body.signed_request;
     const data = parseSignedRequest(signedRequest, process.env.CLIENT_SECRET);
     if (!data) {
-        return res.status(400).send('Invalid signed request.');
+        res.status(400).send('Invalid signed request.');
     }
 
     const userId = data.user_id;
 
     try {
-        // Assuming userId maps to facebookId in your User schema
         await User.deleteOne({ facebookId: userId });
         await Conversation.deleteMany({ customerId: userId });
 

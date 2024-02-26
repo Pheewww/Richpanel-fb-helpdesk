@@ -24,7 +24,7 @@ router.get('/auth/facebook/callback',
             for (const page of user.pageAccessTokens) {
                 console.log(`Registering webhook for page ID: ${page.pageId}`);
                 await registerFacebookWebhook(page.pageId, page.accessToken);
-            }
+            } bv
 
             console.log('All webhooks registered successfully.');
             res.redirect(process.env.POST_LOGIN_REDIRECT_URL); // Note: Corrected to use process.env

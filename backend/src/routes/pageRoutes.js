@@ -3,21 +3,45 @@ import User from '../models/User.js';
 import Conversation from '../models/Conversation.js';
 import passport from 'passport';
 import axios from 'axios';
-import { Strategy as jwt } from 'passport-jwt';
-import opts from '../middlewares/auth.js'
-
+//import { Strategy as jwt } from 'passport-jwt';
+//import confiPassport from './authConfig.js';
+import cors from "cors";
+import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
+import session from 'express-session';
+import verifyToken  from './authConfig.js';
+//import jwt from 'jsonwebtoken';
 
 
 
 const pageRoutes = express.Router();
-pageRoutes.use(passport.initialize());
+pageRoutes.use(cors({
+    origin: process.env.CORS_ORIGIN,
+    credentials: true
+}))
+pageRoutes.use(bodyParser.urlencoded({ extended: false }));
+pageRoutes.use(express.json())
+//pageRoutes.use(passport.initialize());
 
-pageRoutes.get('/user/facebook-page', passport.authenticate('jwt', { session: false }), async (req, res) => {
+pageRoutes.use(session({
+    secret: 'process.env.EXPRESS_SESSION_SECRET',
+    resave: true,
+    saveUninitialized: true
+}));
 
-    const user1 = req.user;
-    console.log('// going for page search, also user ->', user1);
 
-    const userId = req.user._id;
+pageRoutes.use(cookieParser());
+//confiPassport(passport);
+//pageRoutes.use(passport.session());
+
+pageRoutes.get('/user/facebook-page', verifyToken, async (req, res) => {
+    console.log('// GOING FOR FB SEARCH');
+
+    console.log('// in get fb page bloack - req.user->', req.user);
+
+
+    const userId = req.user.id; 
+    console.log('// User ID-->', userId);
     try {
         const user = await User.findById(userId);
         console.log('// user ', user);
@@ -40,7 +64,7 @@ pageRoutes.get('/user/conversations/:conversationId', async (req, res) => {
 
 
 
-    
+
     const { conversationId } = req.params;
     console.log('// Convo ID-->', conversationId);
 
@@ -91,6 +115,7 @@ pageRoutes.get('/user/customer/:PSID/:PAGE/profile', async (req, res) => {
         });
     }
 });
+
 
 
 pageRoutes.post('/api/user/facebook-page/disconnect', async (req, res) => {

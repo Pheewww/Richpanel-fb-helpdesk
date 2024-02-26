@@ -14,15 +14,15 @@ const Signup = () => {
         e.preventDefault();
 
         try {
-            const apiUrl = process.env.REACT_APP_API_URL || 'https://richpanel-fb-helpdesk-gwbm.onrender.com';
-            const response = await axios.post(`${apiUrl}/signup`, { email, password, dob });
+            //const apiUrl = process.env.REACT_APP_API_URL || 'https://richpanel-fb-helpdesk-gwbm.onrender.com';
+            const response = await axios.post('http://localhost:5000/signup', { email, password, dob });
 
             if (response.data.success) {
                 // Store the token or user ID in local storage
                 localStorage.setItem('token', response.data.token);
 
                 // Redirect to the home page
-                window.location.href = '/connect-pages';
+                window.location.href = '/';
             } else {
                 setError('Invalid email or password');
             }

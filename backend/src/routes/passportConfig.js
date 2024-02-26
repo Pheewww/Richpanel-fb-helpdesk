@@ -60,7 +60,7 @@ const configurePassport = (passport) => {
 
             console.log('Update New User ACCESS TOKENS ');
 
-          
+
             if (pagesData.data) {
                 user.pageAccessTokens = pagesData.data.map(page => ({
                     pageId: page.id,
