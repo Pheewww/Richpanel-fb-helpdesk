@@ -58,12 +58,12 @@ app.use('/', webhookRoutes);
 app.use('/', pageRoutes);
 app.use('/', loginRoutes);
 
-app.post('/user/chat/send-message',  async (req, res) => {
+app.post('/user/chat/send-message', async (req, res) => {
     console.log('Received request to send message:', req.body);
     const { senderPsid, messageText, conversationId, pageId } = req.body;
 
 
-   
+
     const PAGE_ID = pageId;
     if (!pageId) {
         console.error('Page ID is missing.');
@@ -71,7 +71,7 @@ app.post('/user/chat/send-message',  async (req, res) => {
     }
 
     try {
-        const user = await User.findOne({pageId: PAGE_ID});
+        const user = await User.findOne({ pageId: PAGE_ID });
         if (!user) {
             console.error('User not found for Page ID:', pageId);
             return res.status(404).json({ error: 'User not found.' });
@@ -87,7 +87,7 @@ app.post('/user/chat/send-message',  async (req, res) => {
 
 
 
-        const response = await axios.post(`https://graph.facebook.com/v19.0/${PAGE_ID}/messages`,  {
+        const response = await axios.post(`https://graph.facebook.com/v19.0/${PAGE_ID}/messages`, {
             recipient: { id: senderPsid },
             messaging_type: 'MESSAGE_TAG',
             message: { text: messageText },
@@ -199,7 +199,7 @@ function parseSignedRequest(signedRequest, secret) {
     const sig = base64UrlDecode(encodedSig);
     const data = JSON.parse(base64UrlDecode(payload));
 
-    const expectedSig = jwt.sign(payload, secret, { algorithm: 'HS256' }).split('.')[2];  
+    const expectedSig = jwt.sign(payload, secret, { algorithm: 'HS256' }).split('.')[2];
 
     if (sig !== expectedSig) {
         console.error('Bad Signed JSON signature!');
