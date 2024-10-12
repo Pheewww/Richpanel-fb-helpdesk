@@ -4,6 +4,7 @@ import passport from 'passport';
 import expressSession from 'express-session';
 import authRoutes from './routes/authRoutes.js';
 import configurePassport from './routes/passportConfig.js';
+import axios from 'axios';
 import webhookRoutes from './routes/webhookRoutes.js';
 import loginRoutes from './routes/loginRoutes.js';
 import registerFacebookWebhook from './routes/registerFacebookWebhook.js';
@@ -11,24 +12,17 @@ import pageRoutes from './routes/pageRoutes.js'
 import User from './models/User.js';
 import Conversation from './models/Conversation.js';
 import cors from "cors";
+import verifyToken from './routes/authConfig.js';
 import dotenv from 'dotenv';
 import './middlewares/authLocal.js'
 dotenv.config();
 
-
-
-const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cors({
-    origin: process.env.CORS_ORIGIN,
-    credentials: true
-}))
-
-// mongoose.connect('mongodb+srv://umang:XZqQmOC7LtUPLCNu@cluster01.2gtklha.mongodb.net?retryWrites=true&w=majority')
+// mongoose.connect('mongodb+srv://umang:0bbK5XsETIXE1VVi@cluster01.2gtklha.mongodb.net?retryWrites=true&w=majority', {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true
+// })
 //     .then(() => console.log('MongoDB Connected'))
 //     .catch(err => console.error('MongoDB connection FAILED', err));
-
 
 try {
     const connectionInstance = await mongoose.connect(`${process.env.MONGODB_URI}`)
@@ -38,7 +32,16 @@ try {
     process.exit(1)
 }
 
-app.use(expressSession({
+
+const app = express();
+app.use(cors({
+    origin: process.env.CORS_ORIGIN,
+    credentials: true
+}))
+
+app.use(express.json())
+
+app.use(session({
     secret: 'process.env.EXPRESS_SESSION_SECRET',
     resave: false,
     saveUninitialized: false,
@@ -57,70 +60,55 @@ app.use(passport.authenticate('session'));
 
 
 
-
 app.use('/', authRoutes);
 app.use('/', webhookRoutes);
 app.use('/', pageRoutes);
 app.use('/', loginRoutes);
 
-app.get('/test-webhook-registration', async (req, res) => {
-    try {
-        const testPageId = '189617477577877';
-        const testPageAccessToken = 'EAAO89S9DSHkBO1FTW1hIoG23HdiCUeZCLy9y8IhZATm8Rvq59mZCbc5owHB9EDUK3FS8plmOzGfBKQxSOXNGzOALVJok41JNRBsa2nQ2oDzEux4w7BYTOAIK1ADOuAbYvT74mqzwToDOhA8IcPljwBzsqFZCZCq9pcmSgWN6Fo3HalnJuY4ruosD2oy1pQlYcVOT0qNMb3MmjvcLs88HdtBMZD';
+app.post('/user/chat/send-message', async (req, res) => {
+    console.log('Received request to send message:', req.body);
+    const { senderPsid, messageText, conversationId, pageId } = req.body;
 
-        await registerFacebookWebhook(testPageId, testPageAccessToken);
-        res.send('Webhook registration initiated. Check server logs for outcome.');
-    } catch (error) {
-        console.error('Error during webhook registration test:', error);
-        res.status(500).send('Error initiating webhook registration.');
+
+
+    const PAGE_ID = pageId;
+    if (!pageId) {
+        console.error('Page ID is missing.');
+        res.status(400).json({ error: 'Page ID is required.' });
     }
-});
 
-
-pageRoutes.get('/facebook-page1', passport.authenticate('local', { session: false }), async (req, res) => {
-
-    const user1 = req.body;
-    console.log('// going for page search, also user ->', user1);
-
-    const userId = req.user;
     try {
-        const user = await User.findById(userId);
-        console.log('// user ', user);
-        //console.log('user email', user.email);
-
-
-        if (!user || !user.pageAccessTokens.length) {
-            return res.status(404).send("No Facebook page connected.");
+        const user = await User.findOne({ pageId: PAGE_ID });
+        if (!user) {
+            console.error('User not found for Page ID:', pageId);
+            res.status(404).json({ error: 'User not found.' });
         }
+        console.log('User found:', user);
 
-        console.log('// Page found ');
+        const PAGE_ACCESS_TOKEN = user.pageAccessTokens[0]?.accessToken;
+        if (!PAGE_ACCESS_TOKEN) {
+            console.error('Access token not found for user:', user);
+            res.status(404).json({ error: 'Access token not found.' });
+        }
+        console.log('Access Token found:', PAGE_ACCESS_TOKEN);
 
-        // Send back the name of the first connected page
-        res.json({ pageName: user.pageAccessTokens[0].name });
-    } catch (error) {
-        console.error('Error fetching Facebook page:', error);
-        res.status(500).send('An error occurred while fetching the Facebook page');
-    }
-});
 
-const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
 
-app.post('/send-message', async (req, res) => {
-    const { senderPsid, messageText, conversationId } = req.body;
-
-    try {
-        const response = await axios.post(`https://graph.facebook.com/v19.0/${pageId}/messages?access_token=${PAGE_ACCESS_TOKEN}`, {
+        const response = await axios.post(`https://graph.facebook.com/v19.0/${PAGE_ID}/messages`, {
             recipient: { id: senderPsid },
+            messaging_type: 'MESSAGE_TAG',
             message: { text: messageText },
-            messaging_type: 'RESPONSE',
             tag: 'CONFIRMED_EVENT_UPDATE'
+        }, {
+            headers: { Authorization: `Bearer ${PAGE_ACCESS_TOKEN}` }
         });
 
         console.log('Message sent:', response.data);
 
         const conversation = await Conversation.findById(conversationId);
         if (!conversation) {
-            return res.status(404).json({ error: 'Conversation not found.' });
+            console.error('Conversation not found with ID:', conversationId);
+            res.status(404).json({ error: 'Conversation not found.' });
         }
         console.log('msg in db ');
 
@@ -146,6 +134,94 @@ app.post('/send-message', async (req, res) => {
 });
 
 
+app.get('/conversations',  verifyToken, async (req, res) => {
+    try {
+        console.log('Working on collecting message for frontend');
+
+
+
+        const userId = req.user.id;
+
+        if (!req.user.id) {
+          return  res.status(401).json({ message: 'User not authenticated' });
+        }
+        console.log('UserID:', userId);
+
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found." });
+        }
+
+        const pageId = user.pageAccessTokens[0]?.pageId;
+        console.log('Found Page id', pageId);
+
+        if (!pageId) {
+           return res.status(404).json({ message: "No Facebook page connected for user." });
+        }
+
+        const conversations = await Conversation.find({ pageId: pageId });
+        console.log('conversations', conversations);
+        return res.json(conversations);
+    } catch (error) {
+        console.error('Error fetching conversations:', error);
+        res.status(500).json({ message: 'An error occurred while fetching conversations' });
+    }
+});
+
+
+
+
+
+
+app.post('/data-deletion', async (req, res) => {
+    const signedRequest = req.body.signed_request;
+    const data = parseSignedRequest(signedRequest, process.env.CLIENT_SECRET);
+    if (!data) {
+        res.status(400).send('Invalid signed request.');
+    }
+
+    const userId = data.user_id;
+
+    try {
+        await User.deleteOne({ facebookId: userId });
+        await Conversation.deleteMany({ customerId: userId });
+
+        const statusUrl = `https://richpanel-fb-helpdesk-1.onrender.com/connect-page?id=${userId}`;
+        const confirmationCode = userId;
+
+        res.json({
+            url: statusUrl,
+            confirmation_code: confirmationCode,
+        });
+    } catch (error) {
+        console.error('Error deleting user data:', error);
+        return res.status(500).send('Internal Server Error');
+    }
+});
+
+function parseSignedRequest(signedRequest, secret) {
+    const [encodedSig, payload] = signedRequest.split('.', 2);
+
+    const sig = base64UrlDecode(encodedSig);
+    const data = JSON.parse(base64UrlDecode(payload));
+
+    const expectedSig = jwt.sign(payload, secret, { algorithm: 'HS256' }).split('.')[2];
+
+    if (sig !== expectedSig) {
+        console.error('Bad Signed JSON signature!');
+        return null;
+    }
+
+    return data;
+}
+
+function base64UrlDecode(input) {
+    let base64 = input.replace(/-/g, '+').replace(/_/g, '/');
+    const buff = Buffer.from(base64, 'base64');
+    return buff.toString('ascii');
+}
+
 
 
 
@@ -155,24 +231,4 @@ app.listen(PORT, async () => {
 });
 
 
-
-// // require('dotenv').config({path: './env'})
-// import dotenv from "dotenv"
-// import connectDB from "./db/index.js";
-// import { app } from './app.js'
-// dotenv.config({
-//     path: './.env'
-// })
-
-
-
-// connectDB()
-//     .then(() => {
-//         app.listen(process.env.PORT || 8000, () => {
-//             console.log(`⚙️ Server is running at port : ${process.env.PORT}`);
-//         })
-//     })
-//     .catch((err) => {
-//         console.log("MONGO db connection failed !!! ", err);
-//     })
 

@@ -4,25 +4,18 @@ import bcrypt from 'bcryptjs';
 const userSchema = new mongoose.Schema({
     facebookId: { type: String, unique: true },
     displayName: String,
-    email: { type: String, unique: true, sparse: true }, 
+    email: { type: String, unique: true, sparse: true },
     password: { type: String, sparse: true },
+    dateOfBirth: Date,
     pageAccessTokens: [{
         pageId: String,
         accessToken: String,
         name: String,
-    }]
+    }],
+    pageId: String,
 });
 
-// const userSchema = new mongoose.Schema({
-//     facebookId: { type: String, unique: true },
-//     displayName: String,
-//     email: { type: String, unique: true, sparse: true },
-//     password: { type: String, sparse: true },
-//     pageAccessTokens: String,
-//     pageId: String,
-//     accessToken: String,
-//     name: String,
-// });
+
 
 userSchema.pre('save', async function (next) {
     if (this.isModified('password')) {

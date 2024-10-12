@@ -8,59 +8,64 @@ function Pages() {
     const [pageName, setPageName] = useState('');
 
     useEffect(() => {
+        const fetchPageData = async () => {
+            console.log('// going for page search');
 
-        console.log('// going for page search');
-        // Add your token retrieval logic here
-        const email = localStorage.getItem('email');
-        console.log('// User email', email);
-        if (!email) {
-            console.log('No email found');
 
-        }
+            const token = localStorage.getItem('token');
+            console.log('// User Token', token);
+          
 
-        const token = localStorage.getItem('token');
-        console.log('// User Token', token);
+            // if (!token) {
+            //     navigate('/');
+            // }
+            try {
+                const response = await fetch('http://localhost:5000/user/facebook-page', {
+                    method: 'GET',
+                    headers: new Headers({
+                        'authorization': `${token}`,
+                        'Content-Type': 'application/json',
+                        'x-access-token': localStorage.getItem('token')
+                    })
+                });
+                console.log('// RESPONSE DATA -- PAGES IN FRONTEND', response);
 
-        // if (!token) {
-        //     navigate('/'); // Redirect to login if no token is found
-        // }
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
 
-        axios.get('http://localhost:5000/success', {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-
-        })
-            .then(response => {
+                const data = await response.json();
                 console.log('// found a page ');
-                setPageName(response.data.pageName);
-            })
-            .catch(error => {
+                setPageName(data.pageName);
+            } catch (error) {
                 console.error('Error fetching Facebook page:', error);
                 setPageName('No page connected');
-            });
+            }
 
-        console.log('// end of search ');
+            console.log('// end of search ');
+        };
+
+        fetchPageData();
     }, [navigate]);
 
-    const disconnectPage = () => {
+    // const disconnectPage = () => {
 
-        console.log('// going for page disconnect');
-        const pageId = '';
+    //     console.log('// going for page disconnect');
+    //     const pageId = ''; 
 
-        axios.post('/user/facebook-page/disconnect', { pageId }, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-        })
-            .then(response => {
-                console.log(response.data);
-                setPageName('No page connected');
-            })
-            .catch(error => {
-                console.error('Error disconnecting Facebook page:', error);
-            });
-    };
+    //     axios.post(`${process.env.REACT_APP_API_URL}/user/facebook-page/disconnect`, { pageId }, {
+    //         headers: {
+    //             'Authorization': `Bearer ${localStorage.getItem('token')}`
+    //         }
+    //     })
+    //         .then(response => {
+    //             console.log(response.data); 
+    //             setPageName('No page connected. Did You Connect Ur FB Page');
+    //         })
+    //         .catch(error => {
+    //             console.error('Error disconnecting Facebook page:', error);
+    //         });
+    // };
 
     return (
         <div className="flex justify-center items-center h-screen bg-blue-600">
@@ -68,12 +73,15 @@ function Pages() {
                 <h2 className="text-2xl font-bold mb-4 text-gray-800 text-center">Facebook Page Integration</h2>
                 <p className="mb-4 text-center">Integrated Page: {pageName}</p>
                 <div className="flex flex-col items-center space-y-4">
-                    <button
+
+
+                    <a
+                        href="https://richpanel-fb-helpdesk-gwbm.onrender.com/data-deletion"
                         className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full text-center"
-                        onClick={disconnectPage}
                     >
+
                         Delete Integration
-                    </button>
+                    </a>
                     <button
                         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full text-center"
                         onClick={() => navigate('/chat')}

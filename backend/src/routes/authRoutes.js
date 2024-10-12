@@ -10,14 +10,14 @@ router.get('/auth/facebook',
 );
 
 router.get('/auth/facebook/callback',
-    passport.authenticate('facebook', { failureRedirect: '/login' }),
+    passport.authenticate('facebook', { failureRedirect: 'https://richpanel-fb-helpdesk-1.onrender.com/pages-chat' }),
     async (req, res) => {
         try {
             const user = await User.findOne({ facebookId: req.user.facebookId });
             //email: req.user.email
             if (!user) {
                 console.log('User not found after Facebook auth.');
-               // return res.redirect('/login');
+                // return res.redirect('/login');
             }
 
             console.log(`User ${user.facebookId} authenticated with Facebook.`);
@@ -25,7 +25,7 @@ router.get('/auth/facebook/callback',
             for (const page of user.pageAccessTokens) {
                 console.log(`Registering webhook for page ID: ${page.pageId}`);
                 await registerFacebookWebhook(page.pageId, page.accessToken);
-            }
+            } bv
 
             console.log('All webhooks registered successfully.');
            
@@ -34,7 +34,7 @@ router.get('/auth/facebook/callback',
             // res.redirect(process.env.POST_LOGIN_REDIRECT_URL); // Note: Corrected to use process.env
         } catch (error) {
             console.error('Error during webhook registration:', error);
-            res.redirect('/error');
+            res.redirect('/login');
         }
     }
 );

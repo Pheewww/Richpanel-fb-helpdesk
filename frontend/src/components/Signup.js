@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
+
 const Signup = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [dob, setDob] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
     const [error, setError] = useState('');
 
@@ -12,15 +14,13 @@ const Signup = () => {
         e.preventDefault();
 
         try {
-
-            const response = await axios.post('http://localhost:5000/signup', { email, password });
+            const apiUrl = process.env.REACT_APP_API_URL || 'https://richpanel-fb-helpdesk-gwbm.onrender.com';
+            const response = await axios.post(`${apiUrl}/signup`, { email, password, dob });
 
             if (response.data.success) {
-                // Store the token or user ID in local storage
                 localStorage.setItem('token', response.data.token);
 
-                // Redirect to the home page
-                window.location.href = '/connect-pages';
+                window.location.href = 'https://richpanel-fb-helpdesk-1.onrender.com/';
             } else {
                 setError('Invalid email or password');
             }
@@ -31,9 +31,9 @@ const Signup = () => {
     };
 
     return (
-        <div className="flex justify-center items-center h-screen bg-blue-100">
+        <div className="flex justify-center items-center h-screen bg-blue-700">
             <div className="bg-white p-8 rounded-lg shadow-md w-96">
-                <h2 className="text-2xl font-bold mb-2 text-gray-800">Create Account</h2>
+                <h2 className="text-2xl font-bold mb-2 justify-between text-gray-800">Create Account</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
@@ -72,6 +72,18 @@ const Signup = () => {
                         />
                     </div>
                     <div className="mb-6">
+                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+                            dateOfBirth
+                        </label>
+                        <input
+                            type="date"
+                            id="dob"
+                            value={dob}
+                            onChange={(e) => setDob(e.target.value)}
+                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                        />
+                    </div>
+                    <div className="mb-6">
                         <input
                             type="checkbox"
                             id="rememberMe"
@@ -90,7 +102,7 @@ const Signup = () => {
                         Sign Up
                     </button>
                     <div className="text-center">
-                        <a href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+                        <a href="/" className="font-medium text-indigo-600 hover:text-indigo-500">
                             Already have an account? Login
                         </a>
                     </div>

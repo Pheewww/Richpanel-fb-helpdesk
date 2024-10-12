@@ -25,25 +25,27 @@ loginRoutes.post('/login', async (req, res) => {
         }
         console.log('// Pwd Done');
 
-        const payload = {
-            id: user._id,
-            displayName: user.displayName,
-            email: user.email
-        };
 
-        const token = jwt.sign(
-            payload,
+
+
+
+        // Simplified token generation
+        jwt.sign(
+            { id: user._id, email: user.email },
             process.env.JWT_SECRET,
-            { expiresIn: '1d' })
+            { expiresIn: '10d' },
 
+            (err, token) => {
+                if (err) {
+                    console.error("Error generating token:", err);
+                    return res.status(500).json({ message: "Error generating token" });
+                }
+                console.log('// IN JWT SIGN BLOCK OF LOGIN ');
 
+                res.json({ success: true, token: 'Bearer ' + token });
+            }
+        );
 
-        return res.status(200).send({
-            success: true,
-            token: "Bearer " + token,
-            message: "Logged in successfully!",
-            user: { email: user.email },
-        });
     } catch (error) {
         console.error('Login error:', error);
         res.status(500).json({ message: 'Server error' });
@@ -52,7 +54,7 @@ loginRoutes.post('/login', async (req, res) => {
 
 
 loginRoutes.post('/signup', async (req, res) => {
-    const { name, email, password } = req.body;
+    const { name, email, password, dob } = req.body;
 
     try {
 
@@ -71,7 +73,9 @@ loginRoutes.post('/signup', async (req, res) => {
         user = new User({
             displayName: name,
             email,
-            password
+            password,
+            dob
+
         });
 
         await user.save().then(user => {
@@ -94,23 +98,9 @@ loginRoutes.post('/signup', async (req, res) => {
 
         console.log('// User added in DB');
 
-        const payload = {
-            user: {
-                id: user.id,
-                displayName: user.displayName,
-                email: user.email
-            }
-        };
-
-        jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '24h' }, (err, token) => {
-            if (err) throw err;
-            res.status(201).json({ success: true, token: "Bearer " + token, email: user.email });
-            ;
-        });
-        console.log('// User given the JWT');
-
+        res.status(201).json({ message: 'User successfully registered. Please log in.' });
     } catch (error) {
-        console.error(error.message);
+        console.error('Signup error:', error);
         res.status(500).send('Server error');
     }
 });
