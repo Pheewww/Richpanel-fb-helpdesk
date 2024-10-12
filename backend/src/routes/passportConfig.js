@@ -11,7 +11,7 @@ const configurePassport = (passport) => {
         profileFields: ['id', 'displayName', 'emails'],
     }, async (accessToken, _refreshToken, profile, done) => {
         try {
-
+            // profileFields: ['id', 'displayName', 'photos', 'email']
             console.log('going for new user search');
             
 
@@ -19,7 +19,7 @@ const configurePassport = (passport) => {
             let user = await User.findOne({ email: emailId });
             if (user) {
                 // new user in db without Access Tokens initially
-                user = await User.findOneAndUpdate({
+                user = await User.create({
                     facebookId: profile.id,
                     displayName: profile.displayName,
 
@@ -27,9 +27,13 @@ const configurePassport = (passport) => {
                 console.log('new user created');
 
 
+            }
 
-            } else {
-                user = await User.create({
+            const emailId = profile.emails[0].value;
+            let user1 = await User.findOne({ email: emailId });
+            if (user1) {
+                // new user in db without Access Tokens initially
+                user = await User.findOneAndUpdate({
                     facebookId: profile.id,
                     displayName: profile.displayName,
 

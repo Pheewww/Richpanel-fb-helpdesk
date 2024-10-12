@@ -2,6 +2,8 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import passport from 'passport';
+import '../middlewares/auth.js';
 
 const loginRoutes = express.Router();
 
@@ -13,13 +15,13 @@ loginRoutes.post('/login', async (req, res) => {
 
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(401).json({ message: 'Invalid email or password' });
+            return res.status(401).send({ success: false, message: 'Invalid email' });
         }
         console.log('// User Done');
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(401).json({ message: 'Invalid email or password' });
+            return res.status(401).json({ message: 'Invalid  password' });
         }
         console.log('// Pwd Done');
 
@@ -64,6 +66,10 @@ loginRoutes.post('/signup', async (req, res) => {
 
         }
 
+
+        user.password = await bcrypt.hash(password, 7);
+
+
         user = new User({
             displayName: name,
             email,
@@ -72,7 +78,24 @@ loginRoutes.post('/signup', async (req, res) => {
 
         });
 
-        await user.save();
+        await user.save().then(user => {
+            res.send({
+                success: true,
+                message: "User created successfully.",
+                user: {
+                    id: user._id,
+                    username: user.username,
+                    email: user.email
+                }
+            })
+        }).catch(err => {
+            res.send({
+                success: false,
+                message: "Something went wrong",
+                error: err
+            })
+        })
+
         console.log('// User added in DB');
 
         res.status(201).json({ message: 'User successfully registered. Please log in.' });

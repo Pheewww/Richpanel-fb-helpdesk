@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API from '../api.js';
 
 function Pages() {
     const navigate = useNavigate();
@@ -83,7 +84,7 @@ function Pages() {
                     </a>
                     <button
                         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full text-center"
-                        onClick={() => navigate('/chat')} // Navigates to the chat page
+                        onClick={() => navigate('/chat')}
                     >
                         Reply To Messages
                     </button>

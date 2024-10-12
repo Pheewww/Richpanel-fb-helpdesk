@@ -43,19 +43,28 @@ pageRoutes.get('/user/facebook-page', verifyToken, async (req, res) => {
     const userId = req.user.id; 
     console.log('// User ID-->', userId);
     try {
-        const user = await User.findById(userId);
-        console.log('// user ', user);
+        const user1 = req.user;
+        console.log('UserID:', user1);
+        console.log('Working on collecting message for frontend');
+        const userId = req.user._id;
 
-        if (!user || !user.pageAccessTokens.length) {
-            return res.status(404).send("No Facebook page connected.");
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found." });
         }
 
-        console.log('// Page found ');
+        console.log('// User found, Now looking for pageId ');
+
+        const pageId = user.pageAccessTokens[0]?.pageId;
+        if (!pageId) {
+            return res.status(404).json({ message: "No Facebook page connected for user." });
+        }
+        console.log('// pageId found above , convo now', pageId);
 
         res.json({ pageName: user.pageAccessTokens[0].name });
     } catch (error) {
-        console.error('Error fetching Facebook page:', error);
-        res.status(500).send('An error occurred while fetching the Facebook page');
+        console.error('Error fetching conversations:', error);
+        res.status(500).json({ message: 'An error occurred while fetching conversations' });
     }
 });
 

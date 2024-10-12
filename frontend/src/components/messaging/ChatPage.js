@@ -1,85 +1,111 @@
-// import React, { useState } from 'react';
-// import ConversationList from './ConversationsList'; // Ensure correct path
-// import MessagePanel from './MessagePanel'; // Ensure correct path
-// import CustomerProfile from './CustomerProfile'; // Ensure correct path
-// // Sample conversations data
-// const sampleConversations = [
-//     {
-//         id: '1',
-//         customerName: 'Amit RG',
-//         lastMessage: 'Hey There! I probably did one of the bes...',
-//         source: 'Facebook DM',
-//         time: '10m',
-//     },
-//     {
-//         id: '1',
-//         customerName: 'Amit RG',
-//         lastMessage: 'Hey There! I probably did one of the bes...',
-//         source: 'Facebook DM',
-//         time: '10m',
-//     },
-// ];
+// components/ChatPage.js
+import React, { useState, useEffect, useCallback } from 'react';
+import axios from 'axios';
+import ConversationList from './ConversationsList';
+import MessagePanel from './MessagePanel';
+import CustomerProfile from './CustomerProfile';
 
-// // Sample messages data
-// const sampleMessages = [
-//     {
-//         senderId: 'user1',
-//         text: 'Hi, I need help with my order.',
-//         timestamp: new Date().toISOString(),
-//     },
-//     {
-//         senderId: 'PAGE_ID',
-//         text: 'Sure, what seems to be the issue?',
-//         timestamp: new Date().toISOString(),
-//     },
-// ];
+const ChatPage = () => {
+    const [conversations, setConversations] = useState([]);
+    const [selectedConversation, setSelectedConversation] = useState(null);
+    const [messages, setMessages] = useState([]);
+    const [customerProfile, setCustomerProfile] = useState(null);
 
-// // Sample customer profile data
-// const sampleCustomerProfile = {
-//     name: 'Alice',
-//     email: 'alice@example.com',
-//     picture: 'https://via.placeholder.com/150',
-// };
+    const pollingInterval = 3000;
 
-// const ChatPage = () => {
-//     const [conversations] = useState(sampleConversations);
-//     const [selectedConversation, setSelectedConversation] = useState(sampleConversations[0]); // Default to first conversation
-//     const [messages, setMessages] = useState(sampleMessages); // Default messages to display
-//     const [customerProfile, setCustomerProfile] = useState(sampleCustomerProfile); // Display sample customer profile
+    useEffect(() => {
+        const fetchConversations = async () => {
+            try {
 
-//     // Function to handle conversation selection (mock-up for demonstration)
-//     const selectConversation = (conversationId) => {
-//         const conversation = conversations.find(c => c.id === conversationId);
-//         if (conversation) {
-//             setSelectedConversation(conversation);
-//             // Assuming all conversations use the same messages for this sample
-//             setMessages(sampleMessages);
-//         }
-//     };
+                console.log('Going to fetch convo');
+                const result = await axios.get('http://localhost:5000/conversations');
+                console.log('I AM IN FETCH CONVERSATION ');
 
-//     // Function to handle sending a message (mock-up for demonstration)
-//     const sendMessage = (text) => {
-//         const newMessage = {
-//             senderId: 'PAGE_ID',
-//             text,
-//             timestamp: new Date().toISOString(),
-//         };
-//         setMessages([...messages, newMessage]);
-//     };
+                setConversations(result.data);
+                console.log('convo brought');
 
-//     return (
-//         <div className="flex">
-//             <ConversationList
-//                 conversations={conversations}
-//                 onSelectConversation={selectConversation}
-//             />
-//             <MessagePanel
-//                 messages={messages}
-//                 onSendMessage={sendMessage}
-//             />
-//             <CustomerProfile profile={customerProfile} />
-//         </div>
-//     );
-// };
+            } catch (error) {
+                console.error('Failed to fetch conversations:', error);
+            }
+        };
+
+        fetchConversations();
+        const intervalId = setInterval(fetchConversations, pollingInterval);
+
+        return () => clearInterval(intervalId);
+    }, []);
+
+    const fetchMessages = useCallback(async () => {
+        if (selectedConversation) {
+            try {
+                console.log('Going to fetch msg in convo');
+
+                const result = await axios.get(`http://localhost:5000/conversations/${selectedConversation._id}/messages`);
+                console.log('found msg in convo');
+
+                setMessages(result.data.messages);
+            } catch (error) {
+                console.error('Failed to fetch messages for conversation:', error);
+            }
+        }
+    }, [selectedConversation]);
+
+    useEffect(() => {
+        if (selectedConversation) {
+            const intervalId = setInterval(fetchMessages, pollingInterval);
+
+            return () => clearInterval(intervalId);
+        }
+    }, [selectedConversation, fetchMessages]);
+
+    const selectConversation = async (conversationId) => {
+        try {
+            const result = await axios(`http://localhost:5000/conversations/${conversationId}`);
+            setSelectedConversation(result.data);
+            setMessages(result.data.messages);
+        } catch (error) {
+            console.error('Failed to select conversation:', error);
+        }
+    };
+
+    const sendMessage = async (text) => {
+        if (selectedConversation) {
+            try {
+                // Send message to the server
+                console.log('send msg to server');
+                const response = await axios.post('/send-message', {
+                    senderPsid: selectedConversation.customerId,
+                    messageText: text,
+                    conversationId: selectedConversation._id
+                });
+
+                console.log('Message sent and logged!', response.data);
+                console.log('Working on showing message on screen ');
+
+
+
+                const newMessage = {
+                    text: text,
+                    timestamp: response.data.sentAt,
+                    messageId: response.data.messageId,
+                    senderId: 'PAGE_ID', // Replace with actual Page ID
+                    recipientId: selectedConversation.customerId,
+                    outgoing: true
+                };
+                setMessages([...messages, newMessage]);
+            } catch (error) {
+                console.error('Failed to send message:', error);
+            }
+        }
+    };
+
+    return (
+        <div className="flex">
+            <ConversationList conversations={conversations} onSelectConversation={selectConversation} />
+            <MessagePanel messages={messages} onSendMessage={sendMessage} />
+            {customerProfile && <CustomerProfile profile={customerProfile} />}
+        </div>
+    );
+};
 
 // export default ChatPage;

@@ -1,7 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import passport from 'passport';
-import session from 'express-session';
+import expressSession from 'express-session';
 import authRoutes from './routes/authRoutes.js';
 import configurePassport from './routes/passportConfig.js';
 import axios from 'axios';
@@ -14,6 +14,7 @@ import Conversation from './models/Conversation.js';
 import cors from "cors";
 import verifyToken from './routes/authConfig.js';
 import dotenv from 'dotenv';
+import './middlewares/authLocal.js'
 dotenv.config();
 
 // mongoose.connect('mongodb+srv://umang:0bbK5XsETIXE1VVi@cluster01.2gtklha.mongodb.net?retryWrites=true&w=majority', {
@@ -42,13 +43,20 @@ app.use(express.json())
 
 app.use(session({
     secret: 'process.env.EXPRESS_SESSION_SECRET',
-    resave: true,
-    saveUninitialized: true
+    resave: false,
+    saveUninitialized: false,
 }));
 
 app.use(passport.initialize());
 app.use(passport.session());
+passport.serializeUser(function (user, cb) {
+    cb(null, user);
+});
+passport.deserializeUser(function (obj, cb) {
+    cb(null, obj);
+});
 configurePassport(passport);
+app.use(passport.authenticate('session'));
 
 
 
